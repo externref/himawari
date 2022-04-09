@@ -109,3 +109,12 @@ class WelcomerHandler:
 
     async def get_welcome_hex_code(self, guild: Guild) -> int:
         return int(await self.get_hex_code(guild.id), 16)
+
+
+class LeaveHandler(WelcomerHandler):
+    def __init__(self) -> None:
+        self.DEFAULT_LEAVE_MESSAGE = "$user left the server."
+        self.get_leave_channel = self.get_welcome_channel
+        self.get_leave_hex_code = self.get_welcome_hex_code
+        self.get_leave_message = self.get_welcome_message
+        super().__init__()
