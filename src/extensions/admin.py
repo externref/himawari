@@ -1,7 +1,7 @@
 from lightbulb.plugins import Plugin
 from lightbulb.context.slash import SlashContext
-from lightbulb.commands.slash import SlashCommand
 from lightbulb.decorators import command, option, implements
+from lightbulb.commands.slash import SlashCommand, SlashCommandGroup, SlashSubCommand
 
 from hikari.embeds import Embed
 from hikari.events.lifetime_events import StartingEvent
@@ -13,7 +13,7 @@ class Admin(Plugin):
     def __init__(self) -> None:
         self.bot: Gojo
         super().__init__(
-            name="Admin Commands",
+            name="admin",
             description="Admin commands for configuring bot's behaviour in server.",
         )
 
@@ -55,6 +55,65 @@ async def set_color(context: SlashContext) -> None:
             color=await admin.bot.color_for(context.get_guild()),
         ),
         reply=True,
+    )
+
+
+@admin.command
+@command(name="configs", description="Check configurations for the server.")
+@implements(SlashCommandGroup)
+async def _config(_: SlashContext) -> None:
+    ...
+
+
+@_config.child
+@command(name="welcome", description="Show welcome configurations for the server.")
+@implements(SlashSubCommand)
+async def welcome_config(context: SlashContext) -> None:
+    if not await admin.bot.welcome_handler.get_data(context.guild_id):
+        await context.respond(
+            embed=Embed(
+                color=await admin.bot.color_for(context.get_guild()),
+                description="This server has no welcome channel setup yet.",
+            )
+        )
+        return
+    channel = await admin.bot.welcome_handler.get_welcome_channel(context.get_guild())
+    welcome_message = await admin.bot.welcome_handler.get_welcome_message(
+        context.get_guild()
+    )
+    hex = await admin.bot.welcome_handler.get_hex_code(context.guild_id)
+
+    await context.respond(
+        embed=Embed(
+            color=await admin.bot.color_for(context.get_guild()),
+            description=f"```yaml\nWelcome Channel: {channel}\nWelcome Hex: {hex}\nWelcome Message: {welcome_message}```",
+        ).set_author(name="WELCOME CONFIGURATIONS", icon=context.get_guild().icon_url)
+    )
+
+
+@_config.child
+@command(name="goodbye", description="Show goodbye configurations for the server.")
+@implements(SlashSubCommand)
+async def goodbye_config(context: SlashContext) -> None:
+    if not await admin.bot.goodbye_handler.get_data(context.guild_id):
+        await context.respond(
+            embed=Embed(
+                color=await admin.bot.color_for(context.get_guild()),
+                description="This server has no goodbye channel setup yet.",
+            )
+        )
+        return
+    channel = await admin.bot.goodbye_handler.get_goodbye_channel(context.get_guild())
+    goodbye_message = await admin.bot.goodbye_handler.get_goodbye_message(
+        context.get_guild()
+    )
+    hex = await admin.bot.goodbye_handler.get_hex_code(context.guild_id)
+
+    await context.respond(
+        embed=Embed(
+            color=await admin.bot.color_for(context.get_guild()),
+            description=f"```yaml\nGoodbye Channel: {channel}\nGoodbye Hex: {hex}\nGoodbye Message: {goodbye_message}\n```",
+        ).set_author(name="GOODBYE CONFIGURATIONS", icon=context.get_guild().icon_url)
     )
 
 
