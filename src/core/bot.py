@@ -1,12 +1,16 @@
 import os
+from typing import Optional
 from datetime import datetime, timedelta
 
 from lightbulb.app import BotApp
 
+from hikari.users import User
 from hikari.guilds import Guild
 from hikari.intents import Intents
+from hikari.errors import NotFoundError
 
 from ..database.color import ColorHandler
+from ..database.leave import GoodbyeHandler
 from ..database.welcome import WelcomerHandler
 
 
@@ -21,6 +25,7 @@ class Gojo(BotApp):
     def __init__(self):
         self.color_handler = ColorHandler("FFFFFF")
         self.welcome_handler = WelcomerHandler()
+        self.goodbye_handler = GoodbyeHandler()
         super().__init__(
             token=get_token(),
             help_slash_command=True,
@@ -47,3 +52,13 @@ class Gojo(BotApp):
     async def color_for(self, guild: Guild) -> int:
         color = await self.color_handler.get_color(guild)
         return int(color, 16)
+
+    async def getch_user(self, id: int) -> Optional[User]:
+        cached = self.cache.get_user(id)
+        if cached:
+            return cached
+        try:
+            fetch = fetch = await self.rest.fetch_user(id)
+            return fetch
+        except:
+            return
