@@ -13,7 +13,7 @@ from ..core.bot import Gojo
 class General(Plugin):
     def __init__(self):
         self.bot: Gojo
-        super().__init__(name="General Commands", description="General bot commands.")
+        super().__init__(name="general", description="General bot commands.")
 
 
 general = General()
