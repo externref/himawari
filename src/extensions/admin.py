@@ -1,9 +1,13 @@
+from __future__ import annotations
+
 from lightbulb.plugins import Plugin
 from lightbulb.context.slash import SlashContext
+from lightbulb.checks import has_guild_permissions
 from lightbulb.decorators import command, option, implements
 from lightbulb.commands.slash import SlashCommand, SlashCommandGroup, SlashSubCommand
 
 from hikari.embeds import Embed
+from hikari.permissions import Permissions
 from hikari.events.lifetime_events import StartingEvent
 
 from ..core.bot import Gojo
@@ -16,13 +20,14 @@ class Admin(Plugin):
             name="admin",
             description="Admin commands for configuring bot's behaviour in server.",
         )
+        self.add_checks(has_guild_permissions(Permissions.MANAGE_GUILD))
 
 
 admin = Admin()
 
 
 @admin.listener(StartingEvent)
-async def _on_starting(_: StartingEvent) -> None:
+async def on_starting(_: StartingEvent) -> None:
     await admin.bot.color_handler.create_connection()
 
 
@@ -119,3 +124,7 @@ async def goodbye_config(context: SlashContext) -> None:
 
 def load(bot: Gojo):
     bot.add_plugin(admin)
+
+
+def unload(bot: Gojo):
+    bot.remove_plugin(admin)

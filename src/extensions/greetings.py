@@ -1,16 +1,19 @@
-from typing import Optional
+from __future__ import annotations
 
 from lightbulb.plugins import Plugin
 from lightbulb.context.base import ResponseProxy
 from lightbulb.context.slash import SlashContext
 from lightbulb.commands.slash import SlashCommand
+from lightbulb.checks import has_guild_permissions
 from lightbulb.decorators import command, option, implements
 from lightbulb.commands.slash import SlashCommandGroup, SlashSubCommand
 
+
+from hikari.users import User
 from hikari.embeds import Embed
 from hikari.guilds import Guild
-from hikari.users import User
 from hikari.errors import ForbiddenError
+from hikari.permissions import Permissions
 from hikari.channels import TextableGuildChannel
 from hikari.events.lifetime_events import StartedEvent
 from hikari.events.member_events import MemberCreateEvent, MemberDeleteEvent
@@ -25,6 +28,7 @@ class Greeting(Plugin):
             name="greeting",
             description="Welcome/Leave module to greet new users and goodbyes.",
         )
+        self.add_checks(has_guild_permissions(Permissions.MANAGE_GUILD))
 
 
 greeting = Greeting()
@@ -36,14 +40,14 @@ async def connect(_) -> None:
     await greeting.bot.goodbye_handler.setup()
 
 
-def process_raw_message(message: str, member: User, guild: Guild) -> str:
+def process_raw_message(message: str, user: User, guild: Guild) -> str:
     message_to_return = (
-        message.replace("$usermention", str(member.mention))
-        .replace("$userid", str(member.id))
-        .replace("$username", str(member.username))
-        .replace("$userdiscriminator", str(member.discriminator))
-        .replace("$userdiscrim", str(member.discriminator))
-        .replace("$user", str(member))
+        message.replace("$usermention", str(user.mention))
+        .replace("$userid", str(user.id))
+        .replace("$username", str(user.username))
+        .replace("$userdiscriminator", str(user.discriminator))
+        .replace("$userdiscrim", str(user.discriminator))
+        .replace("$user", str(user))
         .replace("$servername", str(guild.name))
         .replace("$server", str(guild.name))
         .replace("$membercount", str(len(guild.get_members())))
@@ -139,10 +143,11 @@ async def _welcome(_: SlashContext) -> None:
     name="channel",
     description="Channel to send greeting messages in.",
     type=TextableGuildChannel,
+    required=True,
 )
 @command(name="channel", description="Change/set welcome channel.")
 @implements(SlashSubCommand)
-async def channel_setter(context: SlashContext) -> Optional[ResponseProxy]:
+async def channel_setter(context: SlashContext) -> None | ResponseProxy:
     data = await greeting.bot.welcome_handler.get_data(context.guild_id)
     if not data:
         await greeting.bot.welcome_handler.insert_data(
@@ -161,10 +166,14 @@ async def channel_setter(context: SlashContext) -> Optional[ResponseProxy]:
 
 
 @_welcome.child
-@option(name="message", description="New welcome message.")
+@option(
+    name="message",
+    description="New welcome message.",
+    required=True,
+)
 @command(name="message", description="Setup your own welcome message.")
 @implements(SlashSubCommand)
-async def message_setter(context: SlashContext) -> Optional[ResponseProxy]:
+async def message_setter(context: SlashContext) -> None | ResponseProxy:
     data = await greeting.bot.welcome_handler.get_data(context.guild_id)
     if not data:
         return await context.respond(
@@ -185,10 +194,14 @@ async def message_setter(context: SlashContext) -> Optional[ResponseProxy]:
 
 
 @_welcome.child
-@option(name="hex", description="New hex color.")
+@option(
+    name="hex",
+    description="New hex color.",
+    required=True,
+)
 @command(name="color", description="Change the color of welcome embeds.")
 @implements(SlashSubCommand)
-async def hex_setter(context: SlashContext) -> Optional[ResponseProxy]:
+async def hex_setter(context: SlashContext) -> None | ResponseProxy:
     data = await greeting.bot.welcome_handler.get_data(context.guild_id)
     if not data:
         return await context.respond(
@@ -221,7 +234,7 @@ async def hex_setter(context: SlashContext) -> Optional[ResponseProxy]:
 @_welcome.child
 @command(name="remove", description="Remove all welcome related data for the server.")
 @implements(SlashSubCommand)
-async def welcome_remover(context: SlashContext) -> Optional[ResponseProxy]:
+async def welcome_remover(context: SlashContext) -> None | ResponseProxy:
     data = await greeting.bot.welcome_handler.get_data(context.guild_id)
     if not data:
         return await context.respond(
@@ -256,10 +269,11 @@ async def _goodbye(_: SlashContext) -> None:
     name="channel",
     description="Channel to send greeting messages in.",
     type=TextableGuildChannel,
+    required=True,
 )
 @command(name="channel", description="Change/set goodbye channel.")
 @implements(SlashSubCommand)
-async def channel_setter(context: SlashContext) -> Optional[ResponseProxy]:
+async def channel_setter(context: SlashContext) -> None | ResponseProxy:
     data = await greeting.bot.goodbye_handler.get_data(context.guild_id)
     if not data:
         await greeting.bot.goodbye_handler.insert_data(
@@ -278,10 +292,14 @@ async def channel_setter(context: SlashContext) -> Optional[ResponseProxy]:
 
 
 @_goodbye.child
-@option(name="message", description="New goodbye message.")
+@option(
+    name="message",
+    description="New goodbye message.",
+    required=True,
+)
 @command(name="message", description="Setup your own goodbye message.")
 @implements(SlashSubCommand)
-async def message_setter(context: SlashContext) -> Optional[ResponseProxy]:
+async def message_setter(context: SlashContext) -> None | ResponseProxy:
     data = await greeting.bot.goodbye_handler.get_data(context.guild_id)
     if not data:
         return await context.respond(
@@ -302,10 +320,14 @@ async def message_setter(context: SlashContext) -> Optional[ResponseProxy]:
 
 
 @_goodbye.child
-@option(name="hex", description="New hex color.")
+@option(
+    name="hex",
+    description="New hex color.",
+    required=True,
+)
 @command(name="color", description="Change the color of goodbye embeds.")
 @implements(SlashSubCommand)
-async def hex_setter(context: SlashContext) -> Optional[ResponseProxy]:
+async def hex_setter(context: SlashContext) -> None | ResponseProxy:
     data = await greeting.bot.goodbye_handler.get_data(context.guild_id)
     if not data:
         return await context.respond(
@@ -338,7 +360,7 @@ async def hex_setter(context: SlashContext) -> Optional[ResponseProxy]:
 @_goodbye.child
 @command(name="remove", description="Remove all goodbye related data for the server.")
 @implements(SlashSubCommand)
-async def goodbye_remover(context: SlashContext) -> Optional[ResponseProxy]:
+async def goodbye_remover(context: SlashContext) -> None | ResponseProxy:
     data = await greeting.bot.goodbye_handler.get_data(context.guild_id)
     if not data:
         return await context.respond(
@@ -360,3 +382,7 @@ async def goodbye_remover(context: SlashContext) -> Optional[ResponseProxy]:
 
 def load(bot: Gojo):
     bot.add_plugin(greeting)
+
+
+def unload(bot: Gojo):
+    bot.remove_plugin(greeting)

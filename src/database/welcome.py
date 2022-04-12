@@ -1,4 +1,4 @@
-from typing import Union
+from __future__ import annotations
 
 import aiosqlite
 from hikari import Guild
@@ -37,9 +37,7 @@ class WelcomerHandler:
         )
         await self.connection.commit()
 
-    async def update_data(
-        self, guild_id: int, data: str, value: Union[str, int]
-    ) -> None:
+    async def update_data(self, guild_id: int, data: str, value: str | int) -> None:
         cursor = await self.connection.cursor()
         await cursor.execute(
             """
@@ -103,11 +101,9 @@ class WelcomerHandler:
     async def get_welcome_message(self, guild: Guild) -> str:
         return await self.get_message(guild.id)
 
-    async def get_welcome_channel(self, guild: Guild) -> TextableGuildChannel:
+    async def get_welcome_channel(self, guild: Guild) -> TextableGuildChannel | None:
         id_ = await self.get_channel_id(guild.id)
         return guild.get_channel(id_)
 
     async def get_welcome_hex_code(self, guild: Guild) -> int:
         return int(await self.get_hex_code(guild.id), 16)
-
-

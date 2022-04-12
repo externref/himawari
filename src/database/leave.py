@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 from typing import Union
 
 import aiosqlite
@@ -24,6 +26,7 @@ class GoodbyeHandler:
             )
         await conn.commit()
         self.connection = conn
+        return conn
 
     async def insert_data(self, guild_id: int, channel_id: int) -> None:
         cursor = await self.connection.cursor()
@@ -37,9 +40,7 @@ class GoodbyeHandler:
         )
         await self.connection.commit()
 
-    async def update_data(
-        self, guild_id: int, data: str, value: Union[str, int]
-    ) -> None:
+    async def update_data(self, guild_id: int, data: str, value: str | int) -> None:
         cursor = await self.connection.cursor()
         await cursor.execute(
             """
@@ -103,7 +104,7 @@ class GoodbyeHandler:
     async def get_goodbye_message(self, guild: Guild) -> str:
         return await self.get_message(guild.id)
 
-    async def get_goodbye_channel(self, guild: Guild) -> TextableGuildChannel:
+    async def get_goodbye_channel(self, guild: Guild) -> TextableGuildChannel | None:
         id_ = await self.get_channel_id(guild.id)
         return guild.get_channel(id_)
 

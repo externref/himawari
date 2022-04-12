@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 from datetime import datetime
 
 from lightbulb.plugins import Plugin
@@ -37,3 +39,7 @@ async def _ping(context: SlashContext) -> None:
 
 def load(bot: Gojo):
     bot.add_plugin(general)
+
+
+def unload(bot: Gojo):
+    bot.remove_plugin(general)
