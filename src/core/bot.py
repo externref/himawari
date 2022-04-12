@@ -1,5 +1,6 @@
+from __future__ import annotations
+
 import os
-from typing import Optional
 from datetime import datetime, timedelta
 
 from lightbulb.app import BotApp
@@ -12,6 +13,7 @@ from hikari.errors import NotFoundError
 from ..database.color import ColorHandler
 from ..database.leave import GoodbyeHandler
 from ..database.welcome import WelcomerHandler
+from ..database.starboard import StarboardHandler
 
 
 def get_token():
@@ -23,13 +25,14 @@ def get_token():
 
 class Gojo(BotApp):
     def __init__(self):
-        self.color_handler = ColorHandler("FFFFFF")
-        self.welcome_handler = WelcomerHandler()
         self.goodbye_handler = GoodbyeHandler()
+        self.welcome_handler = WelcomerHandler()
+        self.starboard_handler = StarboardHandler()
+        self.color_handler = ColorHandler("FFFFFF")
         super().__init__(
             token=get_token(),
             help_slash_command=True,
-            default_enabled_guilds=(946977305891340338,),
+            default_enabled_guilds=(os.getenv("GUILD_ID"),),
             intents=(
                 Intents.ALL_UNPRIVILEGED
                 | Intents.GUILD_MEMBERS
@@ -53,12 +56,12 @@ class Gojo(BotApp):
         color = await self.color_handler.get_color(guild)
         return int(color, 16)
 
-    async def getch_user(self, id: int) -> Optional[User]:
+    async def getch_user(self, id: int) -> User | None:
         cached = self.cache.get_user(id)
         if cached:
             return cached
         try:
-            fetch = fetch = await self.rest.fetch_user(id)
+            fetch = await self.rest.fetch_user(id)
             return fetch
-        except:
+        except NotFoundError:
             return
