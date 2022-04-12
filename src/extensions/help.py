@@ -1,4 +1,5 @@
-from typing import Optional
+from __future__ import annotations
+
 from datetime import datetime
 
 from lightbulb.app import BotApp
@@ -20,7 +21,7 @@ class MyHelp(BaseHelpCommand):
         self._bot: Gojo = bot
         super().__init__(bot)
 
-    async def send_help(self, context: SlashContext, obj: Optional[str]) -> None:
+    async def send_help(self, context: SlashContext, obj: str | None) -> None:
         if obj is None:
             await self.send_bot_help(context)
             return
