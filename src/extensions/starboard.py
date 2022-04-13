@@ -6,13 +6,19 @@ from lightbulb.context.base import ResponseProxy
 from lightbulb.checks import has_guild_permissions
 from lightbulb.converters.special import EmojiConverter
 from lightbulb.decorators import command, option, implements
-from lightbulb.commands.slash import SlashCommand, SlashCommandGroup, SlashSubCommand
+from lightbulb.commands.slash import SlashCommandGroup, SlashSubCommand
 
 from hikari.embeds import Embed
+from hikari.errors import NotFoundError
+from hikari.errors import ForbiddenError
 from hikari.permissions import Permissions
 from hikari.emojis import CustomEmoji, Emoji
 from hikari.channels import TextableGuildChannel
 from hikari.events.lifetime_events import StartingEvent
+from hikari.events.reaction_events import (
+    GuildReactionAddEvent,
+    GuildReactionDeleteEvent,
+)
 
 from ..core.bot import Gojo
 
@@ -20,6 +26,7 @@ from ..core.bot import Gojo
 class Starboard(Plugin):
     def __init__(self) -> None:
         self.bot: Gojo
+        self.message_cache_state: dict[str, int] = {}
         super().__init__(
             name="starboard",
             description="Setup a starboard for important messages to appear in a channel.",
@@ -33,6 +40,106 @@ starboard = Starboard()
 @starboard.listener(StartingEvent)
 async def connect(_: StartingEvent) -> None:
     await starboard.bot.starboard_handler.setup()
+
+
+@starboard.listener(GuildReactionAddEvent)
+async def reaction_added(event: GuildReactionAddEvent) -> None:
+    handler = starboard.bot.starboard_handler
+    if not starboard.bot.is_alive:
+        return
+    if not getattr(handler, "connection", None):
+        return
+    if await handler.is_blacklisted(event.message_id):
+        return
+    guild = starboard.bot.cache.get_guild(event.guild_id)
+    data = await handler.get_data(guild)
+    if not data:
+        return
+    channel = await handler.get_channel(guild)
+    if not channel:
+        return
+    emoji_raw = await handler.get_emoji(guild)
+    if emoji_raw == "default":
+        emoji = "⭐"
+    elif emoji_raw.startswith("custom"):
+        emoji = starboard.bot.cache.get_emoji(int(emoji_raw.replace("custom", "")))
+
+    if str(emoji) == event.emoji_name:
+        cache = starboard.message_cache_state.get(str(event.message_id))
+        if not cache:
+            starboard.message_cache_state[str(event.message_id)] = 1
+        else:
+            starboard.message_cache_state[str(event.message_id)] = cache + 1
+    min_count = await handler.get_emoji_count(guild)
+    count = starboard.message_cache_state.get(str(event.message_id))
+    if count and count >= min_count:
+        message = starboard.bot.cache.get_message(event.message_id)
+        if not message:
+            try:
+                message = await starboard.bot.rest.fetch_message(
+                    event.channel_id, event.message_id
+                )
+            except NotFoundError:
+                await handler.blacklist_message(event.message_id)
+        jump_url = f"https://discord.com/channels/{event.guild_id}/{event.channel_id}/{event.message_id}"
+        to_send = message.content
+        image_url = None
+        if not to_send and len(message.embeds):
+            to_send = "Attached Embeds below."
+        elif message.attachments:
+            image_url = message.attachments[0].url
+
+        if not any((to_send, image_url)):
+            return
+
+        embed = Embed(
+            title=f"Message Sent in #{starboard.bot.cache.get_guild_channel(event.channel_id).name}",
+            url=jump_url,
+            color=await starboard.bot.color_for(guild),
+        )
+        embed.set_author(name=event.member.__str__(), icon=event.member.avatar_url)
+        if image_url:
+            embed.set_image(image_url)
+        if to_send:
+            embed.description = to_send
+        try:
+            embeds = [embed]
+            if message.embeds:
+                embeds.extend(message.embeds)
+            await channel.send(embeds=embeds)
+        except ForbiddenError:
+            pass
+        await handler.blacklist_message(event.message_id)
+
+
+@starboard.listener(GuildReactionDeleteEvent)
+async def reaction_removed(event: GuildReactionDeleteEvent) -> None:
+    handler = starboard.bot.starboard_handler
+    if not starboard.bot.is_alive:
+        return
+    if not getattr(handler, "connection", None):
+        return
+    if await handler.is_blacklisted(event.message_id):
+        return
+    guild = starboard.bot.cache.get_guild(event.guild_id)
+    data = await handler.get_data(guild)
+    if not data:
+        return
+    channel = await handler.get_channel(guild)
+    if not channel:
+        return
+    emoji_raw = await handler.get_emoji(guild)
+    if emoji_raw == "default":
+        emoji = "⭐"
+    elif emoji_raw.startswith("custom"):
+        emoji = starboard.bot.cache.get_emoji(int(emoji_raw.replace("custom", "")))
+
+    if str(emoji) == event.emoji_name:
+        cache = starboard.message_cache_state.get(str(event.message_id))
+        if not cache:
+            return
+        else:
+            starboard.message_cache_state[str(event.message_id)] = cache - 1
 
 
 @starboard.command
