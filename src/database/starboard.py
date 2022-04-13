@@ -18,6 +18,12 @@ class StarboardHandler:
             (guild_id TEXT, channel_id TEXT, emoji TEXT, minimum_reaction REAL)
             """
         )
+        await cursor.execute(
+            """
+            CREATE TABLE IF NOT EXISTS sent_messages
+            (message_id TEXT )
+            """
+        )
         await conn.commit()
         self.connection = conn
         return conn
@@ -88,3 +94,28 @@ class StarboardHandler:
         if not data:
             return
         return data.get("count")
+
+    async def blacklist_message(self, id: int) -> None:
+        cursor = await self.connection.cursor()
+        await cursor.execute(
+            """
+            INSERT INTO sent_messages
+            VALUES ( ? )
+            """,
+            (str(id),),
+        )
+        await self.connection.commit()
+
+    async def is_blacklisted(self, id: int) -> bool:
+        cursor = await self.connection.cursor()
+        await cursor.execute(
+            """
+            SELECT * from sent_messages 
+            WHERE message_id = ?
+            """,
+            (str(id),),
+        )
+        if await cursor.fetchone():
+            return True
+        else:
+            return
