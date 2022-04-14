@@ -13,7 +13,7 @@ from hikari.channels import TextableGuildChannel
 
 class GoodbyeHandler:
     connection: aiosqlite.Connection
-    DEFAULT_goodbye_MESSAGE = "$user, left the server"
+    DEFAULT_GOODBYE_MESSAGE = "$user, left the server"
 
     async def setup(self) -> aiosqlite.Connection:
         conn = await aiosqlite.connect("goodbye.db")
@@ -36,7 +36,7 @@ class GoodbyeHandler:
             ( guild_id, channel_id, message, hex_code )
             VALUES ( ?, ?, ?,? )
             """,
-            (str(guild_id), str(channel_id), self.DEFAULT_goodbye_MESSAGE, "ffffff"),
+            (str(guild_id), str(channel_id), self.DEFAULT_GOODBYE_MESSAGE, "ffffff"),
         )
         await self.connection.commit()
 

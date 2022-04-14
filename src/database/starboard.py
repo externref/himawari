@@ -1,6 +1,5 @@
 from __future__ import annotations
 
-from typing import Optional, Union
 
 import aiosqlite
 
@@ -9,6 +8,8 @@ from hikari.channels import GuildTextChannel
 
 
 class StarboardHandler:
+    connection: aiosqlite.Connection
+
     async def setup(self) -> aiosqlite.Connection:
         conn = await aiosqlite.connect("starboard.db")
         cursor = await conn.cursor()
@@ -63,7 +64,7 @@ class StarboardHandler:
     async def update_min_count(self, guild: Guild, count: int) -> None:
         await self.update(guild, "minimum_reaction", count)
 
-    async def get_data(self, guild: Guild) -> Optional[dict]:
+    async def get_data(self, guild: Guild) -> dict | None:
         cursor = await self.connection.cursor()
         await cursor.execute(
             """

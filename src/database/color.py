@@ -1,6 +1,5 @@
 from __future__ import annotations
 
-import sqlite3
 from typing import Union
 
 import aiosqlite
@@ -8,47 +7,33 @@ import aiosqlite
 from hikari.guilds import Guild
 from hikari.messages import Message
 
-from lightbulb.app import BotApp
 from lightbulb.context import Context
 
 
 class ColorHandler:
-    def __init__(self, default_color: str, database_file: str = "colors.db") -> None:
-        self.default_color = default_color
-        self.database_file = database_file
+    database_connection: aiosqlite.Connection
+    color_cache: dict[str, str]
+
+    def __init__(self) -> None:
         self.color_cache = {}
-        self.connection_state = False
-        self.create_database_task(database_file)
 
-    def create_database_task(self, filename: str) -> None:
-        """Initialising the sqlite database and creating a table in it"""
-        if not filename.lower().endswith(".db"):
-            raise BaseException(
-                "The database_file should be a file with `.db` extensions !"
-            )
-        with sqlite3.connect(filename) as database:
-            cursor = database.cursor()
-            cursor.execute(
-                """
-                    CREATE TABLE IF NOT EXISTS  colors
-                    (guild_id TEXT , color TEXT)
-                    """
-            )
-            database.commit()
-
-    async def create_connection(self) -> None:
+    async def setup(self) -> None:
         """The internals call it for making a connection to the database"""
-        self.database_connection = await aiosqlite.connect(self.database_file)
+        conn = await aiosqlite.connect("colors.db")
+        cursor = await conn.cursor()
+        await cursor.execute(
+            """
+                CREATE TABLE IF NOT EXISTS  colors
+                (guild_id TEXT , color TEXT)
+                """
+        )
+        await conn.commit()
+        self.database_connection = conn
 
     async def get_color(self, guild: Guild) -> str:
         """Method to use for the `color` arg in the lightbulb.BotApp object."""
-        if not self.connection_state:
-            await self.create_connection()
-
         color_str = (
-            self._from_cache(guild)
-            or await self._from_database(guild)
-            or self.default_color
+            self._from_cache(guild) or await self._from_database(guild) or "ffffff"
         )
         return color_str
 
@@ -75,7 +60,7 @@ class ColorHandler:
             self.color_cache[str(guild_id)] = guild_data[1]
             return guild_data[1]
         else:
-            self.color_cache[str(guild_id)] = self.default_color
+            self.color_cache[str(guild_id)] = "ffffff"
             return
 
     async def set_color(self, ctx: Context, new_color: str) -> None:
