@@ -15,7 +15,6 @@ from hikari.guilds import Guild
 from hikari.errors import ForbiddenError
 from hikari.permissions import Permissions
 from hikari.channels import TextableGuildChannel
-from hikari.events.lifetime_events import StartedEvent
 from hikari.events.member_events import MemberCreateEvent, MemberDeleteEvent
 
 from ..core.bot import Gojo
@@ -32,12 +31,6 @@ class Greeting(Plugin):
 
 
 greeting = Greeting()
-
-
-@greeting.listener(StartedEvent)
-async def connect(_) -> None:
-    await greeting.bot.welcome_handler.setup()
-    await greeting.bot.goodbye_handler.setup()
 
 
 def process_raw_message(message: str, user: User, guild: Guild) -> str:

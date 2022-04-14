@@ -8,7 +8,7 @@ from lightbulb.commands.slash import SlashCommand, SlashCommandGroup, SlashSubCo
 
 from hikari.embeds import Embed
 from hikari.permissions import Permissions
-from hikari.events.lifetime_events import StartingEvent
+
 
 from ..core.bot import Gojo
 
@@ -24,11 +24,6 @@ class Admin(Plugin):
 
 
 admin = Admin()
-
-
-@admin.listener(StartingEvent)
-async def on_starting(_: StartingEvent) -> None:
-    await admin.bot.color_handler.create_connection()
 
 
 @admin.command

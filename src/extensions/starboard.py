@@ -14,7 +14,6 @@ from hikari.errors import ForbiddenError
 from hikari.permissions import Permissions
 from hikari.emojis import CustomEmoji, Emoji
 from hikari.channels import TextableGuildChannel
-from hikari.events.lifetime_events import StartingEvent
 from hikari.events.reaction_events import (
     GuildReactionAddEvent,
     GuildReactionDeleteEvent,
@@ -35,11 +34,6 @@ class Starboard(Plugin):
 
 
 starboard = Starboard()
-
-
-@starboard.listener(StartingEvent)
-async def connect(_: StartingEvent) -> None:
-    await starboard.bot.starboard_handler.setup()
 
 
 @starboard.listener(GuildReactionAddEvent)
