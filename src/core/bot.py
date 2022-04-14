@@ -9,6 +9,7 @@ from hikari.users import User
 from hikari.guilds import Guild
 from hikari.intents import Intents
 from hikari.errors import NotFoundError
+from hikari.events.lifetime_events import StartingEvent
 
 from ..database.color import ColorHandler
 from ..database.leave import GoodbyeHandler
@@ -25,10 +26,10 @@ def get_token():
 
 class Gojo(BotApp):
     def __init__(self):
+        self.color_handler = ColorHandler()
         self.goodbye_handler = GoodbyeHandler()
         self.welcome_handler = WelcomerHandler()
         self.starboard_handler = StarboardHandler()
-        self.color_handler = ColorHandler("FFFFFF")
         super().__init__(
             token=get_token(),
             help_slash_command=True,
@@ -47,6 +48,13 @@ class Gojo(BotApp):
             "https://discord.com/api/oauth2/authorize?client_id=961613807564775447"
             + "&permissions=378025593921&scope=bot%20applications.commands"
         )
+        self.event_manager.subscribe(StartingEvent, self.start_handlers)
+
+    async def start_handlers(self, _: StartingEvent) -> None:
+        await self.color_handler.setup()
+        await self.goodbye_handler.setup()
+        await self.welcome_handler.setup()
+        await self.starboard_handler.setup()
 
     @property
     def uptime(self) -> timedelta:
