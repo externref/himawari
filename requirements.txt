@@ -1,5 +1,5 @@
+lightbulb-ext-filament
 hikari
 hikari-lightbulb
 aiosqlite
-lightbulb-ext-filament
 python-dotenv
