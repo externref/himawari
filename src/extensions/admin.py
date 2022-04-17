@@ -117,6 +117,33 @@ async def goodbye_config(context: SlashContext) -> None:
     )
 
 
+@_config.child
+@command(name="starboard", description="Show starboard configs.")
+@implements(SlashSubCommand)
+async def starboard_config(context: SlashContext) -> None:
+    handler = admin.bot.starboard_handler
+    if not await handler.get_channel(context.get_guild()):
+        await context.respond(
+            embed=Embed(
+                color=await admin.bot.color_for(context.get_guild()),
+                description="This server has no starbord channel setup yet.",
+            )
+        )
+    channel = await handler.get_channel(context.get_guild())
+    minimum = await handler.get_emoji_count(context.get_guild())
+    emoji = (await handler.get_emoji(context.get_guild())).replace("custom", "")
+    await context.respond(
+        embed=Embed(
+            color=await admin.bot.color_for(context.get_guild()),
+            description=f"```yaml\nStarboard Channel: {channel}\nMimimum Reactions: {minimum}\nEmoji: {emoji}```",
+        )
+        .set_author(name="STARBOARD CONFIGURATIONS", icon=context.get_guild().icon_url)
+        .set_thumbnail(
+            f"https://cdn.discordapp.com/emojis/{emoji}.webp?size=40&quality=lossless"
+        )
+    )
+
+
 def load(bot: Gojo):
     bot.add_plugin(admin)
 
