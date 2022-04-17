@@ -5,6 +5,8 @@
 
 A multipurpose Discord Bot made with [`hikari`](https://github.com/hikari-py/hikari) & [`hikari-lightbulb`](https://github.com/tandemdude/hikari-lightbulb) python library.
 
+DOCS: https://gojo.readthedocs.io/en/latest/
+
 ### FEATURES
 
 * Customisable: You can control bot's behaviour, set channels for logging, change the color of embed messages the bot sends, etc.
