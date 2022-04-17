@@ -278,7 +278,7 @@ async def channel_setter(context: SlashContext) -> None | ResponseProxy:
         )
     await context.respond(
         embed=Embed(
-            description=f"Changed greeting channel to `{context.options.channel.name}`",
+            description=f"Changed goodbye channel to `{context.options.channel.name}`",
             color=await greeting.bot.color_for(context.get_guild()),
         )
     )
