@@ -57,8 +57,10 @@ async def reaction_added(event: GuildReactionAddEvent) -> None:
         emoji = "⭐"
     elif emoji_raw.startswith("custom"):
         emoji = starboard.bot.cache.get_emoji(int(emoji_raw.replace("custom", "")))
+    if not emoji:
+        return
 
-    if str(emoji) == event.emoji_name:
+    if emoji.id == event.emoji_id:
         cache = starboard.message_cache_state.get(str(event.message_id))
         if not cache:
             starboard.message_cache_state[str(event.message_id)] = 1
@@ -82,7 +84,6 @@ async def reaction_added(event: GuildReactionAddEvent) -> None:
             to_send = "Attached Embeds below."
         elif message.attachments:
             image_url = message.attachments[0].url
-
         if not any((to_send, image_url)):
             return
 
