@@ -33,6 +33,7 @@ COMMANDS
 COMMAND CATEGORIES:
 
 .. toctree::
+    general.md
     admin.md
     greetings.md
     starboard.md
