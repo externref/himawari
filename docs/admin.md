@@ -33,3 +33,7 @@ The base command to check configurations for the server.
 ![](images/goodbye_configs.png)
 
 `/configs starboard` : Show starboard configurations for the server.
+
+------
+
+[NEXT](greetings.md)
