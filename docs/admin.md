@@ -31,3 +31,5 @@ The base command to check configurations for the server.
 `/configs goodbye` : Show goodbye configurations for the server.
 
 ![](images/goodbye_configs.png)
+
+`/configs starboard` : Show starboard configurations for the server.
