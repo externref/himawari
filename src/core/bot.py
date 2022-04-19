@@ -3,6 +3,7 @@ from __future__ import annotations
 import os
 from datetime import datetime, timedelta
 
+from lightbulb.ext import tasks
 from lightbulb.app import BotApp
 
 from hikari.users import User
@@ -33,7 +34,7 @@ class Gojo(BotApp):
         super().__init__(
             token=get_token(),
             help_slash_command=True,
-            default_enabled_guilds=(os.getenv("GUILD_ID"),),
+            #default_enabled_guilds=(os.getenv("GUILD_ID"),),
             intents=(
                 Intents.ALL_UNPRIVILEGED
                 | Intents.GUILD_MEMBERS
@@ -41,8 +42,8 @@ class Gojo(BotApp):
             ),
             banner="hikari",
         )
+        tasks.load(self)
         self._boot_time = datetime.now()
-        self.load_extensions("lightbulb.ext.filament.exts.superuser")
         self.load_extensions_from("src/extensions")
         self.invite_url = (
             "https://discord.com/api/oauth2/authorize?client_id=961613807564775447"
