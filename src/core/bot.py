@@ -34,7 +34,7 @@ class Gojo(BotApp):
         super().__init__(
             token=get_token(),
             help_slash_command=True,
-            #default_enabled_guilds=(os.getenv("GUILD_ID"),),
+            # default_enabled_guilds=(os.getenv("GUILD_ID"),),
             intents=(
                 Intents.ALL_UNPRIVILEGED
                 | Intents.GUILD_MEMBERS
