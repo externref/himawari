@@ -22,6 +22,7 @@ class Developer(Plugin):
 
 dev = Developer()
 
+
 @tasks.task(m=10, auto_start=True)
 async def updated_status() -> None:
     await dev.bot.update_presence(
