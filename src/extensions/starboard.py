@@ -246,6 +246,7 @@ async def set_minimum_count(context: SlashContext) -> None | ResponseProxy:
         )
     )
 
+
 @starboard_base.child
 @command(name="remove", description="Remove all starboard related settings.")
 @implements(SlashSubCommand)
@@ -253,22 +254,26 @@ async def remove_starboard(context: SlashContext) -> None | ResponseProxy:
     color = await starboard.bot.color_for(context.get_guild())
     handler = starboard.bot.starboard_handler
     data = await handler.get_data(context.get_guild())
-    if not data :
+    if not data:
         return await context.respond(
             embed=Embed(
                 description="You don't have a starboard channel setup yet.", color=color
             )
         )
 
-    cursor =await handler.connection.cursor()
+    cursor = await handler.connection.cursor()
     await cursor.execute(
         """
         DELETE FROM starboard
         WHERE guild_id = ?
-        """, (str(context.guild_id),)
+        """,
+        (str(context.guild_id),),
     )
     await handler.connection.commit()
-    await context.respond(embed=Embed(color=color, description="Removed all starboard configs."))
+    await context.respond(
+        embed=Embed(color=color, description="Removed all starboard configs.")
+    )
+
 
 def load(bot: Gojo) -> None:
     bot.add_plugin(starboard)
