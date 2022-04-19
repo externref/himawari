@@ -65,5 +65,7 @@ $userdiscrim / $userdiscriminator : Discriminator of the User [ 0460 ]
 $server / $servername : Name of the Server [ servername ]
 $membercount : Membercount of the Server [ 69 ] 
 ```
+------
 
+[NEXT](starboard.md)
 

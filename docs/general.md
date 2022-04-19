@@ -16,3 +16,7 @@ Returns the bot's latency in milliseconds.
 Returns the avatar of the mentioned user or command author if no user is supplied.
 
 ![](images/avatar.png)
+
+-------
+
+[NEXT](admin.md)

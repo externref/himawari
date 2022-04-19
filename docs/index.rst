@@ -30,6 +30,7 @@ FEATURES
 
 * Fast and Stable: All commands are tested multipe times before getting added to the bot.
 
+`TERMS OF SERVICES <https://github.com/sarthhh/gojo/tree/main/docs/tos.md>`_
 
 COMMANDS 
 ~~~~~~~~
