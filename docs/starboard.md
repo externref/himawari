@@ -24,3 +24,5 @@ Starboard commands to configure starboard commands.
 `/starboard min_count` : The minumum number of reactions required to add the message to starboard.
 
 ![](images/starboard_min_count.png)
+
+`/starboard remove` : Remove all the starboard related settings from the server.
