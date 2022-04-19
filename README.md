@@ -7,6 +7,12 @@ A multipurpose Discord Bot made with [`hikari`](https://github.com/hikari-py/hik
 
 DOCS: https://gojo.readthedocs.io/en/latest/
 
+Contact Owner: https://discord.com/users/580034015759826944
+
+Invite URL: https://discord.com/api/oauth2/authorize?client_id=961613807564775447&permissions=378025593921&scope=bot%20applications.commands
+
+Support Server: [aP6e9pZanD](https://discord.gg/aP6e9pZanD)
+
 ### FEATURES
 
 * Customisable: You can control bot's behaviour, set channels for logging, change the color of embed messages the bot sends, etc.
@@ -15,55 +21,5 @@ DOCS: https://gojo.readthedocs.io/en/latest/
 
 * Fast and Stable: All commands are tested multipe times before getting added to the bot.
 
-Stars are appreciated.
+Stars are appreciated <3.
 
-### COMMANDS
-
-Here's a list of some currently available commands.
-
-#### ADMIN COMMANDS
-
-`/color` : Change the embed colors for messages sent by the bot in the server.
-
-`/configs` : Check configurations for the server.
-
-`/configs welcome` : Show welcome configurations for the server.
-
-`/configs goodbye` : Show goodbye configurations for the server.
-
-#### STARBOARD COMMANDS
-
-`/starboard` : Starboard commands.
-
-`/starboard channel` : Set/Change The starboard Channel.
-
-`/starboard emoji` : Set the starboard emoji, ⭐ by default.
-
-`/starboard min_count` : The minumum number of reactions required to add the message to starboard.
-
-#### GREETING COMMANDS
-
-`/greetingvariables` : Variables allowed in welcome/goodbye messages
-
-
-`/welcome` : Welcome commands to greet new members joining your server.
-
-`/welcome channel` : Change/set welcome channel.
-
-`/welcome message` : Setup your own welcome message.
-
-`/welcome color` : Change the color of welcome embeds.
-
-`/welcome remove` : Remove all welcome related data for the server.
-
-
-`/goodbye : Goodbye` commands.
-
-
-`/goodbye channel` : Change/set goodbye channel.
-
-`/goodbye message` : Setup your own goodbye message.
-
-`/goodbye color` : Change the color of goodbye embeds.
-
-`/goodbye remove` : Remove all goodbye related data for the server.
