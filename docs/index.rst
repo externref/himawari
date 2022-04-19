@@ -17,7 +17,7 @@ Contact Owner: https://discord.com/users/580034015759826944
 
 Invite URL: https://discord.com/api/oauth2/authorize?client_id=961613807564775447&permissions=378025593921&scope=bot%20applications.commands
 
-Support Server: `aP6e9pZanD <https://discord.gg/aP6e9pZanD>`_
+Support Server: `xpRd6tB5TF <https://discord.gg/xpRd6tB5TF>`_
 
 FEATURES
 ~~~~~~~~
