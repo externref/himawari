@@ -22,6 +22,8 @@ FEATURES
 
 * Customisable: You can control bot's behaviour, set channels for logging, change the color of embed messages the bot sends, etc.
 
+* Easy to use: The syntax for all commands are fairly easy and guessable. The help command guides with all the bot commands with required information about them.
+
 * Open Source: The bot is open source so you can look into its functioning.
 
 * Fast and Stable: All commands are tested multipe times before getting added to the bot.
