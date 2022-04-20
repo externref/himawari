@@ -91,3 +91,6 @@ async def lightbulb_error(
 
 def load(bot: Gojo):
     bot.add_plugin(dev)
+
+def unload(bot: Gojo):
+    bot.remove_plugin(dev)
