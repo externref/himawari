@@ -42,3 +42,4 @@ COMMAND CATEGORIES:
     admin.md
     greetings.md
     starboard.md
+    fun.md

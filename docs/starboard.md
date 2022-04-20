@@ -26,3 +26,5 @@ Starboard commands to configure starboard commands.
 ![](images/starboard_min_count.png)
 
 `/starboard remove` : Remove all the starboard related settings from the server.
+
+[NEXT](fun.md)
