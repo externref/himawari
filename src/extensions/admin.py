@@ -16,6 +16,7 @@ from ..core.bot import Gojo
 class Admin(Plugin):
     def __init__(self) -> None:
         self.bot: Gojo
+        self.pos = 2
         super().__init__(
             name="admin",
             description="Admin commands for configuring bot's behaviour in server.",
