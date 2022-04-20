@@ -57,11 +57,16 @@ class MyHelp(BaseHelpCommand):
                 "Prefix for the server: /",
                 f"In the server since: {context.get_guild().get_my_member().joined_at.strftime('%d %b %y')}",
                 "\n```",
+                (
+                    f"[Invite]({self._bot.invite_url}) | [Documentation](http://gojo.rtfd.io/) |"
+                    + "[Source](https://github.com/sarthhh/gojo) | [Support](https://discord.gg/xpRd6tB5TF) \n"
+                ),
                 "Use `/config <module>` to check my configs for the server.",
             )
         )
-        for _plugin in self._bot.plugins:
-            plugin: Plugin = self._bot.get_plugin(_plugin)
+        plugins = [self._bot.get_plugin(_plugin) for _plugin in self._bot.plugins]
+        plugins.sort(key = lambda f: f.pos)
+        for plugin in plugins:
             if getattr(plugin, "help_ignore", None):
                 continue
             embed.add_field(
@@ -73,9 +78,12 @@ class MyHelp(BaseHelpCommand):
         comps.add_button(ButtonStyle.LINK, self._bot.invite_url).set_label(
             "Invite Me"
         ).add_to_container()
-        comps.add_button(
-            ButtonStyle.LINK, "https://github.com/sarthak-py/gojo"
-        ).set_label("Source Code").add_to_container()
+        comps.add_button(ButtonStyle.LINK, "https://github.com/sarthhh/gojo").set_label(
+            "Source Code"
+        ).add_to_container()
+        comps.add_button(ButtonStyle.LINK, "http://gojo.rtfd.io/").set_label(
+            "Docs"
+        ).add_to_container()
         await context.respond(embed=embed, component=comps)
 
     async def send_plugin_help(self, context: SlashContext, plugin: Plugin) -> None:
