@@ -145,8 +145,8 @@ async def starboard_config(context: lightbulb.SlashContext) -> None:
 
 
 def load(bot: Gojo):
-    bot.add_lightbulb.Plugin(admin)
+    bot.add_plugin(admin)
 
 
 def unload(bot: Gojo):
-    bot.remove_lightbulb.Plugin(admin)
+    bot.remove_plugin(admin)
