@@ -16,6 +16,7 @@ from ..core.bot import Gojo
 class Developer(Plugin):
     def __init__(self) -> None:
         self.bot: Gojo
+        self.pos = 0
         self.help_ignore = True
         super().__init__(name="Developer")
 
