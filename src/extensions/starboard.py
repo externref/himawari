@@ -25,6 +25,7 @@ from ..core.bot import Gojo
 class Starboard(Plugin):
     def __init__(self) -> None:
         self.bot: Gojo
+        self.pos = 4
         self.message_cache_state: dict[str, int] = {}
         super().__init__(
             name="starboard",

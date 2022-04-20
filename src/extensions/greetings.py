@@ -23,6 +23,7 @@ from ..core.bot import Gojo
 class Greeting(Plugin):
     def __init__(self) -> None:
         self.bot: Gojo
+        self.pos = 3
         super().__init__(
             name="greeting",
             description="Welcome/Leave module to greet new users and goodbyes.",
