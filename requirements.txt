@@ -1,4 +1,3 @@
-lightbulb-ext-filament
 hikari
 hikari-lightbulb
 aiosqlite
