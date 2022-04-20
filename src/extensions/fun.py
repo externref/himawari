@@ -1,22 +1,14 @@
 from __future__ import annotations
 
-from random import choice
+import random
 
-from lightbulb.plugins import Plugin
-from lightbulb.context.base import ResponseProxy
-from lightbulb.context.slash import SlashContext
-from lightbulb.decorators import command, option, implements
-from lightbulb.commands.slash import SlashCommand
-
-from hikari.embeds import Embed
-from hikari.messages import ComponentType
-from hikari.events.interaction_events import InteractionCreateEvent
-from hikari.interactions.component_interactions import ComponentInteraction
+import hikari
+import lightbulb
 
 from ..core.bot import Gojo
 
 
-class Fun(Plugin):
+class Fun(lightbulb.Plugin):
     def __init__(self):
         self.bot: Gojo
         self.pos = 5
@@ -28,7 +20,7 @@ class Fun(Plugin):
 
 async def fetch_meme():
     res = await fun.bot.custom_session.get(
-        f"https://meme-api.herokuapp.com/gimme/{choice(['memes','dankmemes','me_irl','wholesomememes'])}"
+        f"https://meme-api.herokuapp.com/gimme/{random.choice(['memes','dankmemes','me_irl','wholesomememes'])}"
     )
     data = await res.json()
     return data
@@ -38,9 +30,9 @@ fun = Fun()
 
 
 @fun.command
-@command(name="meme", description="Get a random meme from reddit.")
-@implements(SlashCommand)
-async def meme(context: SlashContext) -> None:
+@lightbulb.command(name="meme", description="Get a random meme from reddit.")
+@lightbulb.implements(lightbulb.SlashCommand)
+async def meme(context: lightbulb.SlashContext) -> None:
     nsfw = True
     while nsfw == True:
         """Avoiding Nsfw"""
@@ -48,7 +40,7 @@ async def meme(context: SlashContext) -> None:
         if not data["nsfw"]:
             nsfw = False
 
-    embed = Embed(
+    embed = hikari.Embed(
         title=f"r/{data['subreddit']}",
         description=data["title"],
         color=await fun.bot.color_for(context.get_guild()),
@@ -77,11 +69,13 @@ animals_dict = {
 
 
 @fun.command
-@command(
+@lightbulb.command(
     name="animal", description="Get a random animal image and fact from gives choices."
 )
-@implements(SlashCommand)
-async def animal_command(context: SlashContext) -> None | ResponseProxy:
+@lightbulb.implements(lightbulb.SlashCommand)
+async def animal_command(
+    context: lightbulb.SlashContext,
+) -> None | lightbulb.ResponseProxy:
     act_row = (
         fun.bot.rest.build_action_row()
         .add_select_menu(str(context.author.id))
@@ -93,21 +87,23 @@ async def animal_command(context: SlashContext) -> None | ResponseProxy:
             data[0]
         ).add_to_menu()
 
-    embed = Embed(
+    embed = hikari.Embed(
         color=await fun.bot.color_for(context.get_guild()),
         description="Select an animal.",
     )
     res = await context.respond(embed=embed, component=act_row.add_to_container())
     msg = await res.message()
     try:
-        event: InteractionCreateEvent = await fun.bot.wait_for(
-            InteractionCreateEvent,
+        event: hikari.InteractionCreateEvent = await fun.bot.wait_for(
+            hikari.InteractionCreateEvent,
             timeout=30,
-            predicate=lambda inter: isinstance(inter.interaction, ComponentInteraction)
+            predicate=lambda inter: isinstance(
+                inter.interaction, hikari.ComponentInteraction
+            )
             and inter.interaction.user.id
             and context.author.id
             and inter.interaction.message.id == msg.id
-            and inter.interaction.component_type == ComponentType.SELECT_MENU,
+            and inter.interaction.component_type == hikari.ComponentType.SELECT_MENU,
         )
     except __import__("asyncio").TimeoutError:
         embed.description = "You didn't chose an option on time"

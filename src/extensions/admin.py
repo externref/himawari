@@ -1,19 +1,12 @@
 from __future__ import annotations
 
-from lightbulb.plugins import Plugin
-from lightbulb.context.slash import SlashContext
-from lightbulb.checks import has_guild_permissions
-from lightbulb.decorators import command, option, implements
-from lightbulb.commands.slash import SlashCommand, SlashCommandGroup, SlashSubCommand
-
-from hikari.embeds import Embed
-from hikari.permissions import Permissions
-
+import hikari
+import lightbulb
 
 from ..core.bot import Gojo
 
 
-class Admin(Plugin):
+class Admin(lightbulb.Plugin):
     def __init__(self) -> None:
         self.bot: Gojo
         self.pos = 2
@@ -21,29 +14,31 @@ class Admin(Plugin):
             name="admin",
             description="Admin commands for configuring bot's behaviour in server.",
         )
-        self.add_checks(has_guild_permissions(Permissions.MANAGE_GUILD))
+        self.add_checks(
+            lightbulb.has_guild_permissions(hikari.Permissions.MANAGE_GUILD)
+        )
 
 
 admin = Admin()
 
 
 @admin.command
-@option(
+@lightbulb.option(
     name="hexcode",
     description="Hexcode of the color to set for the server embed messages.",
     required=True,
 )
-@command(
+@lightbulb.command(
     name="color",
     description="Change the embed colors for messages sent by the bot in the server.",
 )
-@implements(SlashCommand)
-async def set_color(context: SlashContext) -> None:
+@lightbulb.implements(lightbulb.SlashCommand)
+async def set_color(context: lightbulb.SlashContext) -> None:
     try:
         int(context.options.hexcode, 16)
     except:
         return await context.respond(
-            embed=Embed(
+            embed=hikari.Embed(
                 color=await admin.bot.color_for(context.get_guild()),
                 description="`hexcode` must be a valid Hexcode.",
             ),
@@ -51,7 +46,7 @@ async def set_color(context: SlashContext) -> None:
         )
     await admin.bot.color_handler.set_color(context, context.options.hexcode)
     await context.respond(
-        embed=Embed(
+        embed=hikari.Embed(
             description=f"Changed server embed color to `{context.options.hexcode}`",
             color=await admin.bot.color_for(context.get_guild()),
         ),
@@ -60,19 +55,21 @@ async def set_color(context: SlashContext) -> None:
 
 
 @admin.command
-@command(name="configs", description="Check configurations for the server.")
-@implements(SlashCommandGroup)
-async def _config(_: SlashContext) -> None:
+@lightbulb.command(name="configs", description="Check configurations for the server.")
+@lightbulb.implements(lightbulb.SlashCommandGroup)
+async def _config(_: lightbulb.SlashContext) -> None:
     ...
 
 
 @_config.child
-@command(name="welcome", description="Show welcome configurations for the server.")
-@implements(SlashSubCommand)
-async def welcome_config(context: SlashContext) -> None:
+@lightbulb.command(
+    name="welcome", description="Show welcome configurations for the server."
+)
+@lightbulb.implements(lightbulb.SlashSubCommand)
+async def welcome_config(context: lightbulb.SlashContext) -> None:
     if not await admin.bot.welcome_handler.get_data(context.guild_id):
         await context.respond(
-            embed=Embed(
+            embed=hikari.Embed(
                 color=await admin.bot.color_for(context.get_guild()),
                 description="This server has no welcome channel setup yet.",
             )
@@ -85,7 +82,7 @@ async def welcome_config(context: SlashContext) -> None:
     hex = await admin.bot.welcome_handler.get_hex_code(context.guild_id)
 
     await context.respond(
-        embed=Embed(
+        embed=hikari.Embed(
             color=await admin.bot.color_for(context.get_guild()),
             description=f"```yaml\nWelcome Channel: {channel}\nWelcome Hex: {hex}\nWelcome Message: {welcome_message}```",
         ).set_author(name="WELCOME CONFIGURATIONS", icon=context.get_guild().icon_url)
@@ -93,12 +90,14 @@ async def welcome_config(context: SlashContext) -> None:
 
 
 @_config.child
-@command(name="goodbye", description="Show goodbye configurations for the server.")
-@implements(SlashSubCommand)
-async def goodbye_config(context: SlashContext) -> None:
+@lightbulb.command(
+    name="goodbye", description="Show goodbye configurations for the server."
+)
+@lightbulb.implements(lightbulb.SlashSubCommand)
+async def goodbye_config(context: lightbulb.SlashContext) -> None:
     if not await admin.bot.goodbye_handler.get_data(context.guild_id):
         await context.respond(
-            embed=Embed(
+            embed=hikari.Embed(
                 color=await admin.bot.color_for(context.get_guild()),
                 description="This server has no goodbye channel setup yet.",
             )
@@ -111,7 +110,7 @@ async def goodbye_config(context: SlashContext) -> None:
     hex = await admin.bot.goodbye_handler.get_hex_code(context.guild_id)
 
     await context.respond(
-        embed=Embed(
+        embed=hikari.Embed(
             color=await admin.bot.color_for(context.get_guild()),
             description=f"```yaml\nGoodbye Channel: {channel}\nGoodbye Hex: {hex}\nGoodbye Message: {goodbye_message}\n```",
         ).set_author(name="GOODBYE CONFIGURATIONS", icon=context.get_guild().icon_url)
@@ -119,13 +118,13 @@ async def goodbye_config(context: SlashContext) -> None:
 
 
 @_config.child
-@command(name="starboard", description="Show starboard configs.")
-@implements(SlashSubCommand)
-async def starboard_config(context: SlashContext) -> None:
+@lightbulb.command(name="starboard", description="Show starboard configs.")
+@lightbulb.implements(lightbulb.SlashSubCommand)
+async def starboard_config(context: lightbulb.SlashContext) -> None:
     handler = admin.bot.starboard_handler
     if not await handler.get_channel(context.get_guild()):
         await context.respond(
-            embed=Embed(
+            embed=hikari.Embed(
                 color=await admin.bot.color_for(context.get_guild()),
                 description="This server has no starbord channel setup yet.",
             )
@@ -134,7 +133,7 @@ async def starboard_config(context: SlashContext) -> None:
     minimum = await handler.get_emoji_count(context.get_guild())
     emoji = (await handler.get_emoji(context.get_guild())).replace("custom", "")
     await context.respond(
-        embed=Embed(
+        embed=hikari.Embed(
             color=await admin.bot.color_for(context.get_guild()),
             description=f"```yaml\nStarboard Channel: {channel}\nMimimum Reactions: {minimum}\nEmoji: {emoji}```",
         )
@@ -146,8 +145,8 @@ async def starboard_config(context: SlashContext) -> None:
 
 
 def load(bot: Gojo):
-    bot.add_plugin(admin)
+    bot.add_lightbulb.Plugin(admin)
 
 
 def unload(bot: Gojo):
-    bot.remove_plugin(admin)
+    bot.remove_lightbulb.Plugin(admin)

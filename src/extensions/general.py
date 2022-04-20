@@ -2,18 +2,13 @@ from __future__ import annotations
 
 from datetime import datetime
 
-from lightbulb.plugins import Plugin
-from lightbulb.context.slash import SlashContext
-from lightbulb.commands.slash import SlashCommand
-from lightbulb.decorators import command, option, implements
-
-from hikari.users import User
-from hikari.embeds import Embed
+import hikari
+import lightbulb
 
 from ..core.bot import Gojo
 
 
-class General(Plugin):
+class General(lightbulb.Plugin):
     def __init__(self):
         self.bot: Gojo
         self.pos = 1
@@ -27,10 +22,10 @@ general = General()
 
 
 @general.command
-@command(name="ping", description="Bot's latency in ms.")
-@implements(SlashCommand)
-async def _ping(context: SlashContext) -> None:
-    embed = Embed(
+@lightbulb.command(name="ping", description="Bot's latency in ms.")
+@lightbulb.implements(lightbulb.SlashCommand)
+async def _ping(context: lightbulb.SlashContext) -> None:
+    embed = hikari.Embed(
         color=await general.bot.color_for(context.get_guild()),
         description="Getting Bot Ping.",
     )
@@ -43,13 +38,18 @@ async def _ping(context: SlashContext) -> None:
 
 
 @general.command
-@option(name="user", description="User to check avatar of.", required=False, type=User)
-@command(name="avatar", description="Check avatar of a user.")
-@implements(SlashCommand)
-async def av_command(context: SlashContext) -> None:
+@lightbulb.option(
+    name="user",
+    description="User to check avatar of.",
+    required=False,
+    type=hikari.User,
+)
+@lightbulb.command(name="avatar", description="Check avatar of a user.")
+@lightbulb.implements(lightbulb.SlashCommand)
+async def av_command(context: lightbulb.SlashContext) -> None:
     target = context.options.user or context.author
     await context.respond(
-        embed=Embed(
+        embed=hikari.Embed(
             color=await general.bot.color_for(context.get_guild()),
             description=f"[Download Avatar]({target.avatar_url or target.default_avatar_url})",
         )

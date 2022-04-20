@@ -2,32 +2,24 @@ from __future__ import annotations
 
 from datetime import datetime
 
-from lightbulb.app import BotApp
-from lightbulb.plugins import Plugin
-from lightbulb.commands.base import Command
-from lightbulb.context.slash import SlashContext
-from lightbulb.help_command import BaseHelpCommand
-from lightbulb.commands.slash import SlashCommandGroup
-
-from hikari.embeds import Embed
-from hikari.messages import ButtonStyle
-from hikari.impl.special_endpoints import ActionRowBuilder
+import hikari
+import lightbulb
 
 from ..core.bot import Gojo
 
 
-class MyHelp(BaseHelpCommand):
-    def __init__(self, bot: BotApp) -> None:
+class MyHelp(lightbulb.BaseHelpCommand):
+    def __init__(self, bot: lightbulb.BotApp) -> None:
         self._bot: Gojo = bot
         super().__init__(bot)
 
-    async def send_help(self, context: SlashContext, obj: str | None) -> None:
+    async def send_help(self, context: lightbulb.SlashContext, obj: str | None) -> None:
         if obj is None:
             await self.send_bot_help(context)
             return
         s_cmd = self.app.get_slash_command(obj.lower())
         if s_cmd is not None and not s_cmd.hidden:
-            if isinstance(s_cmd, SlashCommandGroup):
+            if isinstance(s_cmd, lightbulb.SlashCommandGroup):
                 await self.send_group_help(context, s_cmd)
                 return
             await self.send_command_help(context, s_cmd)
@@ -38,10 +30,10 @@ class MyHelp(BaseHelpCommand):
             return
         await self.object_not_found(context, obj)
 
-    async def send_bot_help(self, context: SlashContext) -> None:
+    async def send_bot_help(self, context: lightbulb.SlashContext) -> None:
 
         embed = (
-            Embed(
+            hikari.Embed(
                 color=await self._bot.color_for(context.get_guild()),
                 timestamp=datetime.now().astimezone(),
             )
@@ -65,7 +57,7 @@ class MyHelp(BaseHelpCommand):
             )
         )
         plugins = [self._bot.get_plugin(_plugin) for _plugin in self._bot.plugins]
-        plugins.sort(key = lambda f: f.pos)
+        plugins.sort(key=lambda f: f.pos)
         for plugin in plugins:
             if getattr(plugin, "help_ignore", None):
                 continue
@@ -74,22 +66,24 @@ class MyHelp(BaseHelpCommand):
                 value=plugin.description,
             )
 
-        comps = ActionRowBuilder()
-        comps.add_button(ButtonStyle.LINK, self._bot.invite_url).set_label(
+        comps = hikari.impl.ActionRowBuilder()
+        comps.add_button(hikari.ButtonStyle.LINK, self._bot.invite_url).set_label(
             "Invite Me"
         ).add_to_container()
-        comps.add_button(ButtonStyle.LINK, "https://github.com/sarthhh/gojo").set_label(
-            "Source Code"
-        ).add_to_container()
-        comps.add_button(ButtonStyle.LINK, "http://gojo.rtfd.io/").set_label(
+        comps.add_button(
+            hikari.ButtonStyle.LINK, "https://github.com/sarthhh/gojo"
+        ).set_label("Source Code").add_to_container()
+        comps.add_button(hikari.ButtonStyle.LINK, "http://gojo.rtfd.io/").set_label(
             "Docs"
         ).add_to_container()
         await context.respond(embed=embed, component=comps)
 
-    async def send_plugin_help(self, context: SlashContext, plugin: Plugin) -> None:
+    async def send_plugin_help(
+        self, context: lightbulb.SlashContext, plugin: lightbulb.Plugin
+    ) -> None:
 
         embed = (
-            Embed(
+            hikari.Embed(
                 color=await self._bot.color_for(context.get_guild()),
                 timestamp=datetime.now().astimezone(),
             )
@@ -102,7 +96,7 @@ class MyHelp(BaseHelpCommand):
         description = ""
         for command in plugin.all_commands:
             description += f"`/{command.name}` : {command.description}\n"
-            if isinstance(command, SlashCommandGroup):
+            if isinstance(command, lightbulb.SlashCommandGroup):
                 description += (
                     "\n".join(
                         f"> `/{command.name} {command.subcommands.get(sub_c).name}` : {command.subcommands.get(sub_c).description}"
@@ -113,9 +107,11 @@ class MyHelp(BaseHelpCommand):
         embed.description = description
         await context.respond(embed=embed)
 
-    async def send_command_help(self, context: SlashContext, command: Command) -> None:
+    async def send_command_help(
+        self, context: lightbulb.SlashContext, command: lightbulb.Command
+    ) -> None:
         embed = (
-            Embed(
+            hikari.Embed(
                 color=await self._bot.color_for(
                     context.get_guild(),
                 ),
@@ -132,10 +128,10 @@ class MyHelp(BaseHelpCommand):
         await context.respond(embed=embed)
 
     async def send_group_help(
-        self, context: SlashContext, group: SlashCommandGroup
+        self, context: lightbulb.SlashContext, group: lightbulb.SlashCommandGroup
     ) -> None:
         embed = (
-            Embed(color=await self._bot.color_for(context.get_guild()))
+            hikari.Embed(color=await self._bot.color_for(context.get_guild()))
             .set_author(name=f"{group.name.upper()} COMMAND HELP")
             .set_footer(
                 text=f"Requested by {context.author}", icon=context.author.avatar_url

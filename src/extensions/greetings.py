@@ -1,26 +1,12 @@
 from __future__ import annotations
 
-from lightbulb.plugins import Plugin
-from lightbulb.context.base import ResponseProxy
-from lightbulb.context.slash import SlashContext
-from lightbulb.commands.slash import SlashCommand
-from lightbulb.checks import has_guild_permissions
-from lightbulb.decorators import command, option, implements
-from lightbulb.commands.slash import SlashCommandGroup, SlashSubCommand
-
-
-from hikari.users import User
-from hikari.embeds import Embed
-from hikari.guilds import Guild
-from hikari.errors import ForbiddenError
-from hikari.permissions import Permissions
-from hikari.channels import TextableGuildChannel
-from hikari.events.member_events import MemberCreateEvent, MemberDeleteEvent
+import hikari
+import lightbulb
 
 from ..core.bot import Gojo
 
 
-class Greeting(Plugin):
+class Greeting(lightbulb.Plugin):
     def __init__(self) -> None:
         self.bot: Gojo
         self.pos = 3
@@ -28,13 +14,15 @@ class Greeting(Plugin):
             name="greeting",
             description="Welcome/Leave module to greet new users and goodbyes.",
         )
-        self.add_checks(has_guild_permissions(Permissions.MANAGE_GUILD))
+        self.add_checks(
+            lightbulb.has_guild_permissions(hikari.Permissions.MANAGE_GUILD)
+        )
 
 
 greeting = Greeting()
 
 
-def process_raw_message(message: str, user: User, guild: Guild) -> str:
+def process_raw_message(message: str, user: hikari.User, guild: hikari.Guild) -> str:
     message_to_return = (
         message.replace("$usermention", str(user.mention))
         .replace("$userid", str(user.id))
@@ -49,8 +37,8 @@ def process_raw_message(message: str, user: User, guild: Guild) -> str:
     return message_to_return
 
 
-@greeting.listener(MemberCreateEvent)
-async def new_member(event: MemberCreateEvent) -> None:
+@greeting.listener(hikari.MemberCreateEvent)
+async def new_member(event: hikari.MemberCreateEvent) -> None:
     data = await greeting.bot.welcome_handler.get_data(event.guild_id)
     if not data:
         return
@@ -60,7 +48,7 @@ async def new_member(event: MemberCreateEvent) -> None:
     raw_message = await greeting.bot.welcome_handler.get_welcome_message(
         event.get_guild()
     )
-    embed = Embed(
+    embed = hikari.Embed(
         description=process_raw_message(raw_message, event.member, event.get_guild()),
         color=await greeting.bot.welcome_handler.get_welcome_hex_code(
             event.get_guild()
@@ -69,12 +57,12 @@ async def new_member(event: MemberCreateEvent) -> None:
     embed.set_author(name=str(event.member)).set_thumbnail(event.member.avatar_url)
     try:
         await channel.send(embed=embed)
-    except ForbiddenError:
+    except hikari.ForbiddenError:
         ...
 
 
-@greeting.listener(MemberDeleteEvent)
-async def remove_member(event: MemberDeleteEvent) -> None:
+@greeting.listener(hikari.MemberDeleteEvent)
+async def remove_member(event: hikari.MemberDeleteEvent) -> None:
     data = await greeting.bot.goodbye_handler.get_data(event.guild_id)
     if not data:
         return
@@ -84,7 +72,7 @@ async def remove_member(event: MemberDeleteEvent) -> None:
     raw_message = await greeting.bot.goodbye_handler.get_goodbye_message(
         event.get_guild()
     )
-    embed = Embed(
+    embed = hikari.Embed(
         description=process_raw_message(raw_message, event.user, event.get_guild()),
         color=await greeting.bot.goodbye_handler.get_goodbye_hex_code(
             event.get_guild()
@@ -93,19 +81,19 @@ async def remove_member(event: MemberDeleteEvent) -> None:
     embed.set_author(name=str(event.user)).set_thumbnail(event.user.avatar_url)
     try:
         await channel.send(embed=embed)
-    except ForbiddenError:
+    except hikari.ForbiddenError:
         ...
 
 
 @greeting.command
-@command(
+@lightbulb.command(
     name="greetingvariables",
     description="Variables allowed in welcome/goodbye messages",
 )
-@implements(SlashCommand)
-async def variables(context: SlashContext) -> None:
+@lightbulb.implements(lightbulb.SlashCommand)
+async def variables(context: lightbulb.SlashContext) -> None:
     await context.respond(
-        embed=Embed(
+        embed=hikari.Embed(
             color=await greeting.bot.color_for(context.get_guild()),
             description="""
 ```bash
@@ -123,25 +111,27 @@ $membercount : Membercount of the Server [ 69 ]
 
 
 @greeting.command
-@command(
+@lightbulb.command(
     name="welcome",
     description="Welcome commands to greet new members joining your server.",
 )
-@implements(SlashCommandGroup)
-async def _welcome(_: SlashContext) -> None:
+@lightbulb.implements(lightbulb.SlashCommandGroup)
+async def _welcome(_: lightbulb.SlashContext) -> None:
     ...
 
 
 @_welcome.child
-@option(
+@lightbulb.option(
     name="channel",
     description="Channel to send greeting messages in.",
-    type=TextableGuildChannel,
+    type=hikari.TextableGuildChannel,
     required=True,
 )
-@command(name="channel", description="Change/set welcome channel.")
-@implements(SlashSubCommand)
-async def channel_setter(context: SlashContext) -> None | ResponseProxy:
+@lightbulb.command(name="channel", description="Change/set welcome channel.")
+@lightbulb.implements(lightbulb.SlashSubCommand)
+async def channel_setter(
+    context: lightbulb.SlashContext,
+) -> None | lightbulb.ResponseProxy:
     data = await greeting.bot.welcome_handler.get_data(context.guild_id)
     if not data:
         await greeting.bot.welcome_handler.insert_data(
@@ -152,7 +142,7 @@ async def channel_setter(context: SlashContext) -> None | ResponseProxy:
             context, context.options.channel
         )
     await context.respond(
-        embed=Embed(
+        embed=hikari.Embed(
             description=f"Changed greeting channel to `{context.options.channel.name}`",
             color=await greeting.bot.color_for(context.get_guild()),
         )
@@ -160,18 +150,20 @@ async def channel_setter(context: SlashContext) -> None | ResponseProxy:
 
 
 @_welcome.child
-@option(
+@lightbulb.option(
     name="message",
     description="New welcome message.",
     required=True,
 )
-@command(name="message", description="Setup your own welcome message.")
-@implements(SlashSubCommand)
-async def message_setter(context: SlashContext) -> None | ResponseProxy:
+@lightbulb.command(name="message", description="Setup your own welcome message.")
+@lightbulb.implements(lightbulb.SlashSubCommand)
+async def message_setter(
+    context: lightbulb.SlashContext,
+) -> None | lightbulb.ResponseProxy:
     data = await greeting.bot.welcome_handler.get_data(context.guild_id)
     if not data:
         return await context.respond(
-            embed=Embed(
+            embed=hikari.Embed(
                 description="You need to setup a welcome channel first.",
                 color=await greeting.bot.color_for(context.get_guild()),
             )
@@ -180,7 +172,7 @@ async def message_setter(context: SlashContext) -> None | ResponseProxy:
         context, context.options.message.replace("\\n", "\n")
     )
     await context.respond(
-        embed=Embed(
+        embed=hikari.Embed(
             description=context.options.message.replace("\\n", "\n"),
             color=await greeting.bot.color_for(context.get_guild()),
         ).set_author(name="Changed Welcome Message to :")
@@ -188,18 +180,18 @@ async def message_setter(context: SlashContext) -> None | ResponseProxy:
 
 
 @_welcome.child
-@option(
+@lightbulb.option(
     name="hex",
     description="New hex color.",
     required=True,
 )
-@command(name="color", description="Change the color of welcome embeds.")
-@implements(SlashSubCommand)
-async def hex_setter(context: SlashContext) -> None | ResponseProxy:
+@lightbulb.command(name="color", description="Change the color of welcome embeds.")
+@lightbulb.implements(lightbulb.SlashSubCommand)
+async def hex_setter(context: lightbulb.SlashContext) -> None | lightbulb.ResponseProxy:
     data = await greeting.bot.welcome_handler.get_data(context.guild_id)
     if not data:
         return await context.respond(
-            embed=Embed(
+            embed=hikari.Embed(
                 description="You need to setup a welcome channel first.",
                 color=await greeting.bot.color_for(context.get_guild()),
             )
@@ -208,7 +200,7 @@ async def hex_setter(context: SlashContext) -> None | ResponseProxy:
         int(context.options.hex, 16)
     except:
         return await context.respond(
-            embed=Embed(
+            embed=hikari.Embed(
                 color=await greeting.bot.color_for(context.get_guild()),
                 description="`hex` must be a valid Hexcode.",
             ),
@@ -216,7 +208,7 @@ async def hex_setter(context: SlashContext) -> None | ResponseProxy:
         )
     await greeting.bot.welcome_handler.update_color(context, context.options.hex)
     await context.respond(
-        embed=Embed(
+        embed=hikari.Embed(
             description=f"Changed welcome Embed hex to `{context.options.hex}`",
             color=await greeting.bot.welcome_handler.get_welcome_hex_code(
                 context.get_guild()
@@ -226,13 +218,17 @@ async def hex_setter(context: SlashContext) -> None | ResponseProxy:
 
 
 @_welcome.child
-@command(name="remove", description="Remove all welcome related data for the server.")
-@implements(SlashSubCommand)
-async def welcome_remover(context: SlashContext) -> None | ResponseProxy:
+@lightbulb.command(
+    name="remove", description="Remove all welcome related data for the server."
+)
+@lightbulb.implements(lightbulb.SlashSubCommand)
+async def welcome_remover(
+    context: lightbulb.SlashContext,
+) -> None | lightbulb.ResponseProxy:
     data = await greeting.bot.welcome_handler.get_data(context.guild_id)
     if not data:
         return await context.respond(
-            embed=Embed(
+            embed=hikari.Embed(
                 description="This server does not have a welcome configuration yet.",
                 color=await greeting.bot.color_for(context.get_guild()),
             )
@@ -249,25 +245,27 @@ async def welcome_remover(context: SlashContext) -> None | ResponseProxy:
 
 
 @greeting.command
-@command(
+@lightbulb.command(
     name="goodbye",
     description="Goodbye commands.",
 )
-@implements(SlashCommandGroup)
-async def _goodbye(_: SlashContext) -> None:
+@lightbulb.implements(lightbulb.SlashCommandGroup)
+async def _goodbye(_: lightbulb.SlashContext) -> None:
     ...
 
 
 @_goodbye.child
-@option(
+@lightbulb.option(
     name="channel",
     description="Channel to send greeting messages in.",
-    type=TextableGuildChannel,
+    type=hikari.TextableGuildChannel,
     required=True,
 )
-@command(name="channel", description="Change/set goodbye channel.")
-@implements(SlashSubCommand)
-async def channel_setter(context: SlashContext) -> None | ResponseProxy:
+@lightbulb.command(name="channel", description="Change/set goodbye channel.")
+@lightbulb.implements(lightbulb.SlashSubCommand)
+async def channel_setter(
+    context: lightbulb.SlashContext,
+) -> None | lightbulb.ResponseProxy:
     data = await greeting.bot.goodbye_handler.get_data(context.guild_id)
     if not data:
         await greeting.bot.goodbye_handler.insert_data(
@@ -278,7 +276,7 @@ async def channel_setter(context: SlashContext) -> None | ResponseProxy:
             context, context.options.channel
         )
     await context.respond(
-        embed=Embed(
+        embed=hikari.Embed(
             description=f"Changed goodbye channel to `{context.options.channel.name}`",
             color=await greeting.bot.color_for(context.get_guild()),
         )
@@ -286,18 +284,20 @@ async def channel_setter(context: SlashContext) -> None | ResponseProxy:
 
 
 @_goodbye.child
-@option(
+@lightbulb.option(
     name="message",
     description="New goodbye message.",
     required=True,
 )
-@command(name="message", description="Setup your own goodbye message.")
-@implements(SlashSubCommand)
-async def message_setter(context: SlashContext) -> None | ResponseProxy:
+@lightbulb.command(name="message", description="Setup your own goodbye message.")
+@lightbulb.implements(lightbulb.SlashSubCommand)
+async def message_setter(
+    context: lightbulb.SlashContext,
+) -> None | lightbulb.ResponseProxy:
     data = await greeting.bot.goodbye_handler.get_data(context.guild_id)
     if not data:
         return await context.respond(
-            embed=Embed(
+            embed=hikari.Embed(
                 description="You need to setup a goodbye channel first.",
                 color=await greeting.bot.color_for(context.get_guild()),
             )
@@ -306,7 +306,7 @@ async def message_setter(context: SlashContext) -> None | ResponseProxy:
         context, context.options.message.replace("\\n", "\n")
     )
     await context.respond(
-        embed=Embed(
+        embed=hikari.Embed(
             description=context.options.message.replace("\\n", "\n"),
             color=await greeting.bot.color_for(context.get_guild()),
         ).set_author(name="Changed goodbye Message to :")
@@ -314,18 +314,18 @@ async def message_setter(context: SlashContext) -> None | ResponseProxy:
 
 
 @_goodbye.child
-@option(
+@lightbulb.option(
     name="hex",
     description="New hex color.",
     required=True,
 )
-@command(name="color", description="Change the color of goodbye embeds.")
-@implements(SlashSubCommand)
-async def hex_setter(context: SlashContext) -> None | ResponseProxy:
+@lightbulb.command(name="color", description="Change the color of goodbye embeds.")
+@lightbulb.implements(lightbulb.SlashSubCommand)
+async def hex_setter(context: lightbulb.SlashContext) -> None | lightbulb.ResponseProxy:
     data = await greeting.bot.goodbye_handler.get_data(context.guild_id)
     if not data:
         return await context.respond(
-            embed=Embed(
+            embed=hikari.Embed(
                 description="You need to setup a goodbye channel first.",
                 color=await greeting.bot.color_for(context.get_guild()),
             )
@@ -334,7 +334,7 @@ async def hex_setter(context: SlashContext) -> None | ResponseProxy:
         int(context.options.hex, 16)
     except:
         return await context.respond(
-            embed=Embed(
+            embed=hikari.Embed(
                 color=await greeting.bot.color_for(context.get_guild()),
                 description="`hex` must be a valid Hexcode.",
             ),
@@ -342,7 +342,7 @@ async def hex_setter(context: SlashContext) -> None | ResponseProxy:
         )
     await greeting.bot.goodbye_handler.update_color(context, context.options.hex)
     await context.respond(
-        embed=Embed(
+        embed=hikari.Embed(
             description=f"Changed goodbye Embed hex to `{context.options.hex}`",
             color=await greeting.bot.goodbye_handler.get_goodbye_hex_code(
                 context.get_guild()
@@ -352,13 +352,17 @@ async def hex_setter(context: SlashContext) -> None | ResponseProxy:
 
 
 @_goodbye.child
-@command(name="remove", description="Remove all goodbye related data for the server.")
-@implements(SlashSubCommand)
-async def goodbye_remover(context: SlashContext) -> None | ResponseProxy:
+@lightbulb.command(
+    name="remove", description="Remove all goodbye related data for the server."
+)
+@lightbulb.implements(lightbulb.SlashSubCommand)
+async def goodbye_remover(
+    context: lightbulb.SlashContext,
+) -> None | lightbulb.ResponseProxy:
     data = await greeting.bot.goodbye_handler.get_data(context.guild_id)
     if not data:
         return await context.respond(
-            embed=Embed(
+            embed=hikari.Embed(
                 description="This server does not have a goodbye configuration yet.",
                 color=await greeting.bot.color_for(context.get_guild()),
             )

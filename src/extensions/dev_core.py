@@ -1,19 +1,17 @@
 from __future__ import annotations
 
-from lightbulb.ext import tasks
-from lightbulb.plugins import Plugin
-from lightbulb import errors as lb_errors
-from lightbulb.context.slash import SlashContext
-from lightbulb.context.base import ResponseProxy
-from lightbulb.events import SlashCommandErrorEvent
+import hikari
+import lightbulb
 
-from hikari.embeds import Embed
+from lightbulb.ext import tasks
+
+
 from hikari.presences import Status, ActivityType, Activity
 
 from ..core.bot import Gojo
 
 
-class Developer(Plugin):
+class Developer(lightbulb.Plugin):
     def __init__(self) -> None:
         self.bot: Gojo
         self.pos = 0
@@ -35,52 +33,54 @@ async def updated_status() -> None:
     )
 
 
-@dev.listener(SlashCommandErrorEvent)
-async def lightbulb_error(error: SlashCommandErrorEvent) -> None | ResponseProxy:
-    context: SlashContext = error.context
+@dev.listener(lightbulb.SlashCommandErrorEvent)
+async def lightbulb_error(
+    error: lightbulb.SlashCommandErrorEvent,
+) -> None | lightbulb.ResponseProxy:
+    context: lightbulb.SlashContext = error.context
     guild = context.get_guild()
     color = await dev.bot.color_for(guild)
-    if isinstance(error.exception, lb_errors.CommandIsOnCooldown):
+    if isinstance(error.exception, lightbulb.CommandIsOnCooldown):
         await context.respond(
-            embed=Embed(
+            embed=hikari.Embed(
                 color=color,
                 description=f"`{context.command.name}` command is on cooldown for `{error.exception.retry_after:.1f}` seconds.",
             )
         )
-    elif isinstance(error.exception, lb_errors.NotOwner):
+    elif isinstance(error.exception, lightbulb.NotOwner):
         await context.respond(
-            embed=Embed(
+            embed=hikari.Embed(
                 color=color,
                 description=f"`{context.command.name}` is an owner only command.",
             )
         )
-    elif isinstance(error.exception, lb_errors.MissingRequiredPermission):
+    elif isinstance(error.exception, lightbulb.MissingRequiredPermission):
         perms = "` , `".join(perm.name for perm in error.exception.missing_perms)
         await context.respond(
-            embed=Embed(
+            embed=hikari.Embed(
                 color=color,
                 description=f"You need `{perms}` permission(s) to run this command.",
             )
         )
 
-    elif isinstance(error.exception, lb_errors.BotMissingRequiredPermission):
+    elif isinstance(error.exception, lightbulb.BotMissingRequiredPermission):
         perms = "` , `".join(perm.name for perm in error.exception.missing_perms)
         await context.respond(
-            embed=Embed(
+            embed=hikari.Embed(
                 color=color,
                 description=f"Bot need `{perms}` permission(s) to run this command.",
             )
         )
-    elif isinstance(error.exception, lb_errors.OnlyInDM):
+    elif isinstance(error.exception, lightbulb.OnlyInDM):
         await context.respond(
-            embed=Embed(
+            embed=hikari.Embed(
                 color=color,
                 description=f"`{context.command.name}` command can only be used in DMs.",
             )
         )
-    elif isinstance(error.exception, lb_errors.OnlyInGuild):
+    elif isinstance(error.exception, lightbulb.OnlyInGuild):
         await context.respond(
-            embed=Embed(
+            embed=hikari.Embed(
                 color=color,
                 description=f"`{context.command.name}` command cannot be used in DMs.",
             )

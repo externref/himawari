@@ -4,20 +4,14 @@ import os
 from datetime import datetime, timedelta
 
 import aiohttp
-
+import hikari
+import lightbulb
 from lightbulb.ext import tasks
-from lightbulb.app import BotApp
-
-from hikari.users import User
-from hikari.guilds import Guild
-from hikari.intents import Intents
-from hikari.errors import NotFoundError
-from hikari.events.lifetime_events import StartingEvent
 
 from ..database.color import ColorHandler
 from ..database.leave import GoodbyeHandler
-from ..database.welcome import WelcomerHandler
 from ..database.starboard import StarboardHandler
+from ..database.welcome import WelcomerHandler
 
 
 def get_token():
@@ -27,7 +21,7 @@ def get_token():
     return os.getenv("TOKEN")
 
 
-class Gojo(BotApp):
+class Gojo(lightbulb.BotApp):
     def __init__(self):
         self.color_handler = ColorHandler()
         self.goodbye_handler = GoodbyeHandler()
@@ -38,13 +32,12 @@ class Gojo(BotApp):
             help_slash_command=True,
             #default_enabled_guilds=(os.getenv("GUILD_ID"),),
             intents=(
-                Intents.ALL_UNPRIVILEGED
-                | Intents.GUILD_MEMBERS
-                | Intents.GUILD_PRESENCES
+                hikari.Intents.ALL_UNPRIVILEGED
+                | hikari.Intents.GUILD_MEMBERS
+                | hikari.Intents.GUILD_PRESENCES
             ),
             banner="hikari",
         )
-        self.custom_session = aiohttp.ClientSession()
         tasks.load(self)
         self._boot_time = datetime.now()
         self.load_extensions_from("src/extensions")
@@ -52,9 +45,10 @@ class Gojo(BotApp):
             "https://discord.com/api/oauth2/authorize?client_id=961613807564775447"
             + "&permissions=378025593921&scope=bot%20applications.commands"
         )
-        self.event_manager.subscribe(StartingEvent, self.start_handlers)
+        self.event_manager.subscribe(hikari.StartingEvent, self.start_handlers)
 
-    async def start_handlers(self, _: StartingEvent) -> None:
+    async def start_handlers(self, _: hikari.StartingEvent) -> None:
+        self.custom_session = aiohttp.ClientSession()
         await self.color_handler.setup()
         await self.goodbye_handler.setup()
         await self.welcome_handler.setup()
@@ -64,16 +58,18 @@ class Gojo(BotApp):
     def uptime(self) -> timedelta:
         return datetime.now() - self._boot_time
 
-    async def color_for(self, guild: Guild) -> int:
+    async def color_for(self, guild: hikari.Guild) -> int:
+        if not guild:
+            return 0xFFFFFF
         color = await self.color_handler.get_color(guild)
         return int(color, 16)
 
-    async def getch_user(self, id: int) -> User | None:
+    async def getch_user(self, id: int) -> hikari.User | None:
         cached = self.cache.get_user(id)
         if cached:
             return cached
         try:
             fetch = await self.rest.fetch_user(id)
             return fetch
-        except NotFoundError:
+        except hikari.NotFoundError:
             return
