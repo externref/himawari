@@ -169,21 +169,6 @@ hikari = ">=2.0.0.dev107,<2.1.0"
 crontrigger = ["croniter (>=1.3.4,<1.4.0)", "types-croniter (>=1.0.8,<1.1.0)"]
 
 [[package]]
-name = "hikari-miru"
-version = "1.1.1"
-description = "An alternative component handler for hikari, inspired by discord.py's views."
-category = "main"
-optional = false
-python-versions = ">=3.8.0,<3.11"
-
-[package.dependencies]
-colorama = {version = "*", markers = "sys_platform == \"win32\""}
-hikari = ">=2.0.0.dev106"
-
-[package.extras]
-docs = ["furo (>=2022.1.2,<2022.2.0)", "sphinx (==4.4.0)"]
-
-[[package]]
 name = "idna"
 version = "3.3"
 description = "Internationalized Domain Names in Applications (IDNA)"
@@ -269,7 +254,7 @@ multidict = ">=4.0"
 [metadata]
 lock-version = "1.1"
 python-versions = ">=3.9,<3.11"
-content-hash = "cdf2a6e8ff79d9c8ea9f213b17349d57349d7eacc74b29f18d2131074b4dd57b"
+content-hash = "d0e06f7718f597b073ab5200c76a0d09d7e478668ec833a9d453014695180840"
 
 [metadata.files]
 aiohttp = [
@@ -471,10 +456,6 @@ hikari = [
 hikari-lightbulb = [
     {file = "hikari-lightbulb-2.2.1.tar.gz", hash = "sha256:77c543dfec286b21ce4382bb5ede7a3106bbcab5ae43f41a1dc921b5e2e7e3af"},
     {file = "hikari_lightbulb-2.2.1-py3-none-any.whl", hash = "sha256:2fafc1486e3bb187f7bd2c8f5fc1b7fee29ca29addcaab638ebc981cbff576a0"},
-]
-hikari-miru = [
-    {file = "hikari-miru-1.1.1.tar.gz", hash = "sha256:7d9ff975546e963cb0b3f234d3396990dc20d0569a70f42135c3b8a16880bd20"},
-    {file = "hikari_miru-1.1.1-py3-none-any.whl", hash = "sha256:f5aec9b7ce3672433d71e1076f64384e13ac24d687d667bd5c9db4ee38185aa0"},
 ]
 idna = [
     {file = "idna-3.3-py3-none-any.whl", hash = "sha256:84d9dd047ffa80596e0f246e2eab0b391788b0503584e8945f2368256d2735ff"},
