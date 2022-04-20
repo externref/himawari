@@ -3,6 +3,8 @@ from __future__ import annotations
 import os
 from datetime import datetime, timedelta
 
+import aiohttp
+
 from lightbulb.ext import tasks
 from lightbulb.app import BotApp
 
@@ -34,7 +36,7 @@ class Gojo(BotApp):
         super().__init__(
             token=get_token(),
             help_slash_command=True,
-            # default_enabled_guilds=(os.getenv("GUILD_ID"),),
+            #default_enabled_guilds=(os.getenv("GUILD_ID"),),
             intents=(
                 Intents.ALL_UNPRIVILEGED
                 | Intents.GUILD_MEMBERS
@@ -42,6 +44,7 @@ class Gojo(BotApp):
             ),
             banner="hikari",
         )
+        self.custom_session = aiohttp.ClientSession()
         tasks.load(self)
         self._boot_time = datetime.now()
         self.load_extensions_from("src/extensions")
