@@ -16,10 +16,10 @@ from ..core.bot import Gojo
 class General(Plugin):
     def __init__(self):
         self.bot: Gojo
+        self.pos = 1
         super().__init__(
             name="general",
             description="General bot commands.",
-            default_enabled_guilds=(964157647752400916),
         )
 
 
