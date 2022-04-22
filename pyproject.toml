@@ -1,7 +1,7 @@
 [tool.poetry]
-name = "kakashi"
-version = "0.1.0"
-description = "An Open source general purpose discord Bot written in hikari library using Python"
+name = "gojo"
+version = "0.0.1"
+description = "A Slash command only Discord bot written in hikari library "
 authors = ["sarthak-py <shiva02939@gmail.com>"]
 
 [tool.poetry.dependencies]
