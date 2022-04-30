@@ -11,6 +11,7 @@ python-dotenv = "^0.20.0"
 hikari = "^2.0.0-alpha.108"
 hikari-lightbulb = "^2.2.1"
 hikari-miru = "^1.1.1"
+uvloop = "^0.16.0"
 
 [tool.poetry.dev-dependencies]
 black = "^22.3.0"
