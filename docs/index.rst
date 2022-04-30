@@ -38,8 +38,10 @@ COMMANDS
 COMMAND CATEGORIES:
 
 .. toctree::
-    general.md
+
+    info.md
     admin.md
     greetings.md
     starboard.md
     fun.md
+    general.md

@@ -12,7 +12,7 @@ This module allows you to configure welcome and leave channels, messages etc, wh
 
 Welcome commands to greet new members joining your server. This can be configured anytime.
 
-These commands require `Manage Server` permissions to run.
+These commands require `Manage Server` permissions on the user to run.
 
 **Subcommands :**
 

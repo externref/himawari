@@ -17,6 +17,5 @@ Returns the avatar of the mentioned user or command author if no user is supplie
 
 ![](images/avatar.png)
 
--------
 
-[NEXT](admin.md)
+
