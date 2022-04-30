@@ -11,7 +11,7 @@ from ..core.bot import Gojo
 class General(lightbulb.Plugin):
     def __init__(self):
         self.bot: Gojo
-        self.pos = 1
+        self.pos = 6
         super().__init__(
             name="general",
             description="General bot commands.",
