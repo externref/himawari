@@ -18,4 +18,16 @@ Get information about a member in the server.
 
 -----
 
+## /roleinfo
+
+Get information about the mentioned role.
+
+![](images/roleinfo1.png)
+
+![](images/roleinfo2.png)
+
+![](images/roleinfo3.png)
+
+----
+
 [NEXT](admin.md)
