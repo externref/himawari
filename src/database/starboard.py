@@ -37,7 +37,7 @@ class StarboardHandler:
             (guild_id, channel_id , emoji, minimum_reaction)
             VALUES (? , ?, ? , ?)
             """,
-            (str(channel.get_guild().id), str(channel.id), "⭐", 3),
+            (str(channel.get_guild().id), str(channel.id), "default", 3),
         )
         await self.connection.commit()
 
