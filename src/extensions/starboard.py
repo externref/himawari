@@ -47,7 +47,16 @@ async def reaction_added(event: hikari.GuildReactionAddEvent) -> None:
     if not emoji:
         return
 
-    if emoji.id == event.emoji_id:
+    def check(emoji, _event: str | hikari.CustomEmoji):
+        if event.emoji_id:
+
+            return emoji in (
+                f"<:{event.emoji_name}:{event.emoji_id}>",
+                f"<a:{event.emoji_name}:{event.emoji_id}>",
+            )
+        return emoji == event.emoji_name
+
+    if check(str(emoji), event):
         cache = starboard.message_cache_state.get(str(event.message_id))
         if not cache:
             starboard.message_cache_state[str(event.message_id)] = 1
