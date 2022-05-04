@@ -94,15 +94,18 @@ async def userinfo(context: lightbulb.SlashContext) -> None:
     basic.title = "BASIC INFO"
 
     role_embed = await get_base_embed_for_member(member)
-    role_embed.description = "\n".join(
-        f"{role.mention} : {role.id}" for role in member.get_roles()
+    role_embed.description = " , ".join(
+        f"{role.mention}" for role in member.get_roles()
     )
     role_embed.title = "ROLES INFO"
 
     perms_embed = await get_base_embed_for_member(member)
-    perms_embed.description = " , ".join(
-        str(permission).title().replace("_", " ")
-        for permission in lightbulb.utils.permissions_for(member)
+    perms_embed.description = (
+        " , ".join(
+            str(permission).title().replace("_", " ")
+            for permission in lightbulb.utils.permissions_for(member)
+        )
+        or "No permissions."
     )
     perms_embed.title = "PERMISSION INFO"
 
@@ -113,18 +116,58 @@ async def userinfo(context: lightbulb.SlashContext) -> None:
     pag.start(msg)
 
 
-"""
 @info.command
 @lightbulb.option(name="role", description="Role to get info about.", type=hikari.Role)
 @lightbulb.command(name="roleinfo", description="Info about mentioned role.")
+@lightbulb.implements(lightbulb.SlashCommand)
 async def roleinfo(context: lightbulb.SlashContext) -> None:
     role: hikari.Role = context.options.role
-    basic_info= {
-        "name" : role.name,
-        "ID" : role.id,
-
+    basic_info = {
+        "name": role.name,
+        "ID": role.id,
+        "members with role": len(
+            [
+                mem
+                for mem in context.get_guild().get_members().values()
+                if role in mem.get_roles()
+            ]
+        ),
+        "color": role.color,
+        "created": get_timestamp(role.created_at),
+        "hoist": role.is_hoisted,
+        "mentionable?": role.is_mentionable,
+        "mention": f"`{role.mention}`",
+        "position": role.position,
     }
-"""
+
+    base_embed = await get_base_embed_for_role(role)
+    base_embed.description = "\n".join(
+        f"**{key.title()}** : {value}" for key, value in basic_info.items()
+    )
+    base_embed.title = "BASIC INFO"
+
+    members_embed = await get_base_embed_for_role(role)
+    members_embed.description = " , ".join(
+        mem.mention
+        for mem in context.get_guild().get_members().values()
+        if role in mem.get_roles()
+    )
+    members_embed.title = (
+        ("MEMBERS WITH ROLE" or "No users with this role")
+        if role.id != context.guild_id
+        else "Everyone"
+    )
+
+    perm_embed = await get_base_embed_for_role(role)
+    perm_embed.description = (
+        " , ".join(perm.name.title().replace("_", " ") for perm in role.permissions)
+        or "No perms"
+    )
+    pag = InfoEmbedPag(context)
+    pag.add_embeds(base_embed, members_embed, perm_embed)
+    res = await context.respond(embed=base_embed, components=pag.build())
+    msg = await res.message()
+    pag.start(msg)
 
 
 def load(bot: Gojo) -> None:
