@@ -271,7 +271,7 @@ async def remove_starboard(
         DELETE FROM starboard
         WHERE guild_id = ?
         """,
-        (str(context.guild_id),),
+        (context.guild_id,),
     )
     await handler.connection.commit()
     await context.respond(

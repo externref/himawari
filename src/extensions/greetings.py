@@ -239,7 +239,7 @@ async def welcome_remover(
         DELETE FROM welcome
         WHERE guild_id = ?
         """,
-        (str(context.guild_id)),
+        (context.guild_id),
     )
     await greeting.bot.welcome_handler.connection.commit()
 
@@ -373,7 +373,7 @@ async def goodbye_remover(
         DELETE FROM goodbye
         WHERE guild_id = ?
         """,
-        (str(context.guild_id)),
+        (context.guild_id),
     )
     await greeting.bot.goodbye_handler.connection.commit()
 
