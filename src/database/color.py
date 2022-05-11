@@ -23,9 +23,9 @@ class ColorHandler:
         cursor = await conn.cursor()
         await cursor.execute(
             """
-                CREATE TABLE IF NOT EXISTS  colors
-                (guild_id TEXT , color TEXT)
-                """
+            CREATE TABLE IF NOT EXISTS  colors
+            (guild_id BIGINT , color TEXT)
+            """
         )
         await conn.commit()
         self.database_connection = conn
@@ -53,7 +53,7 @@ class ColorHandler:
                 SELECT * FROM colors 
                 WHERE guild_id = ?
                 """,
-                (str(guild_id),),
+                (guild_id,),
             )
             guild_data = await cursor.fetchone()
         if guild_data:
@@ -75,16 +75,15 @@ class ColorHandler:
                     SET color = ?
                     WHERE guild_id = ?
                     """,
-                    (new_color, str(guild.id)),
+                    (new_color, guild.id)
                 )
             else:
                 await cursor.execute(
                     """
                     INSERT INTO colors
-                    (guild_id , color)
                     VALUES (? , ? )
                     """,
-                    (str(guild.id), new_color),
+                    (guild.id, new_color),
                 )
             await self.database_connection.commit()
             self.color_cache[str(guild.id)] = new_color

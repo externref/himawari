@@ -16,13 +16,13 @@ class StarboardHandler:
         await cursor.execute(
             """
             CREATE TABLE IF NOT EXISTS starboard
-            (guild_id TEXT, channel_id TEXT, emoji TEXT, minimum_reaction REAL)
+            (guild_id BIGINT, channel_id BIGINT, emoji TEXT, minimum_reaction REAL)
             """
         )
         await cursor.execute(
             """
             CREATE TABLE IF NOT EXISTS sent_messages
-            (message_id TEXT )
+            (message_id BIGINT )
             """
         )
         await conn.commit()
@@ -34,10 +34,9 @@ class StarboardHandler:
         await cursor.execute(
             """
             INSERT INTO starboard
-            (guild_id, channel_id , emoji, minimum_reaction)
             VALUES (? , ?, ? , ?)
             """,
-            (str(channel.get_guild().id), str(channel.id), "default", 3),
+            (channel.get_guild().id, channel.id, "default", 3),
         )
         await self.connection.commit()
 
@@ -51,7 +50,7 @@ class StarboardHandler:
             """.format(
                 data
             ),
-            (value, str(guild.id)),
+            (value, guild.id),
         )
         await self.connection.commit()
 
@@ -71,7 +70,7 @@ class StarboardHandler:
             SELECT * FROM starboard
             WHERE guild_id =?
             """,
-            (str(guild.id),),
+            (guild.id,),
         )
         data = await cursor.fetchone()
         if not data:
@@ -103,7 +102,7 @@ class StarboardHandler:
             INSERT INTO sent_messages
             VALUES ( ? )
             """,
-            (str(id),),
+            (id,),
         )
         await self.connection.commit()
 
@@ -114,7 +113,7 @@ class StarboardHandler:
             SELECT * from sent_messages 
             WHERE message_id = ?
             """,
-            (str(id),),
+            (id,),
         )
         if await cursor.fetchone():
             return True

@@ -19,7 +19,7 @@ class WelcomerHandler:
             await cursor.execute(
                 """
                 CREATE TABLE IF NOT EXISTS welcome
-                (guild_id TEXT, channel_id TEXT, message TEXT, hex_code TEXT)
+                (guild_id BIGINT, channel_id BIGINT, message TEXT, hex_code TEXT)
                 """
             )
         await conn.commit()
@@ -30,10 +30,9 @@ class WelcomerHandler:
         await cursor.execute(
             """
             INSERT INTO welcome
-            ( guild_id, channel_id, message, hex_code )
             VALUES ( ?, ?, ?,? )
             """,
-            (str(guild_id), str(channel_id), self.DEFAULT_WELCOME_MESSAGE, "ffffff"),
+            (guild_id, channel_id, self.DEFAULT_WELCOME_MESSAGE, "ffffff"),
         )
         await self.connection.commit()
 
@@ -47,7 +46,7 @@ class WelcomerHandler:
             """.format(
                 data
             ),
-            (value, str(guild_id)),
+            (value, guild_id),
         )
         await self.connection.commit()
 
@@ -58,7 +57,7 @@ class WelcomerHandler:
             SELECT * FROM welcome
             WHERE guild_id = ?
             """,
-            (str(guild_id),),
+            (guild_id,),
         )
         data = await cursor.fetchone()
         if data is None:
