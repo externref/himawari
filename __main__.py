@@ -1,6 +1,6 @@
 import os
 
-from src.core.bot import Gojo
+from core.bot import Gojo
 
 if __name__ == "__main__":
     bot = Gojo()
