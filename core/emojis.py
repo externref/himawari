@@ -57,3 +57,11 @@ class EmojiStore:
     @property
     def owner_icon(self) -> hikari.Emoji | None:
         return self.emoji_by_id(973922134718029896)
+
+    @property
+    def news_channel(self) -> hikari.Emoji | None:
+        return self.emoji_by_id(975510270220853309)
+
+    @property
+    def rules_channel(self) -> hikari.Emoji | None:
+        return self.emoji_by_id(975510391755006002)
