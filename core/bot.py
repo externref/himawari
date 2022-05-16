@@ -43,7 +43,7 @@ class Gojo(lightbulb.BotApp):
         super().__init__(
             token=get_token(),
             help_slash_command=True,
-            #default_enabled_guilds=os.getenv('TOKEN'),
+            # default_enabled_guilds=os.getenv('TOKEN'),
             intents=(
                 hikari.Intents.ALL_UNPRIVILEGED  # adding all not privilaged intents to the bot
                 | hikari.Intents.GUILD_MEMBERS  # GUILD_MEMBERS intents for welcome & leave module
