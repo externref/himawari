@@ -180,6 +180,7 @@ async def roleinfo(context: lightbulb.SlashContext) -> None:
 async def serverinfo(context: lightbulb.SlashContext) -> None:
     guild = context.get_guild()
     color = await info.bot.color_for(guild)
+    emoji_class = info.bot.custom_emojis
     base_embed = (
         hikari.Embed(title="SERVER INFO", color=color)
         .set_author(name=f"INFORMATION ABOUT {guild.name}")
@@ -188,29 +189,113 @@ async def serverinfo(context: lightbulb.SlashContext) -> None:
     base_data = {
         "📛 name": guild.name,
         "🆔 id": context.guild_id,
-        f"{info.bot.custom_emojis.owner_icon} owner": f"<@{guild.owner_id}> | `{info.bot.cache.get_user(guild.owner_id)}`",
+        f"{emoji_class.owner_icon} owner": f"<@{guild.owner_id}> | `{info.bot.cache.get_user(guild.owner_id)}`",
         "✏️ created on": f"{guild.created_at.strftime('%d %b %Y')} | {get_timestamp(guild.created_at)}",
-        f"{info.bot.custom_emojis.member_icon} total members": len(guild.get_members()),
-        f"{info.bot.custom_emojis.text_channel_icon} total channels": len(
-            [channel for channel in guild.get_channels().values() if isinstance(channel,hikari.TextableGuildChannel) or isinstance(channel, hikari.GuildVoiceChannel)]
+        f"{emoji_class.member_icon} total members": len(guild.get_members()),
+        f"{emoji_class.text_channel_icon} total channels": len(
+            [
+                channel
+                for channel in guild.get_channels().values()
+                if isinstance(channel, hikari.TextableGuildChannel)
+                or isinstance(channel, hikari.GuildVoiceChannel)
+            ]
         ),
-        f"{info.bot.custom_emojis.voice_channel_icon} afk channel": f"<#{guild.afk_channel_id}>"
+        f"{emoji_class.voice_channel_icon} afk channel": f"<#{guild.afk_channel_id}>"
         if guild.afk_channel_id
         else "None",
         "😄 emojis": len(guild.get_emojis()),
-        f"{info.bot.custom_emojis.role_icon } total roles": len(guild.get_roles()),
-        f"{info.bot.custom_emojis.emoji_by_id(974393185335922718)} Boost Tier/Boosts": f"Level {guild.premium_tier} | {guild.premium_subscription_count} Boosters",
+        f"{emoji_class.role_icon } total roles": len(guild.get_roles()),
+        f"{emoji_class.emoji_by_id(974393185335922718)} Boost Tier/Boosts": f"Level {guild.premium_tier} | {guild.premium_subscription_count} Boosters",
     }
     base_embed.description = "\n".join(
         f"**{key.title()}** : {value}" for key, value in base_data.items()
     )
+    base_embed.set_image(guild.banner_url)
 
     channel_embed = hikari.Embed(title="CHANNELS", color=color)
+    channels = [
+        channel
+        for channel in guild.get_channels().values()
+        if isinstance(channel, hikari.TextableGuildChannel)
+        or isinstance(channel, hikari.GuildVoiceChannel)
+    ]
+    category_channels = [
+        channel
+        for channel in guild.get_channels().values()
+        if isinstance(channel, hikari.GuildCategory)
+    ]
+    text_channels = [
+        channel
+        for channel in guild.get_channels().values()
+        if isinstance(channel, hikari.TextableGuildChannel)
+    ]
+    voice_channels = [
+        channel
+        for channel in guild.get_channels().values()
+        if isinstance(channel, hikari.GuildVoiceChannel)
+    ]
+
+    news_channels = [
+        channel
+        for channel in guild.get_channels().values()
+        if isinstance(channel, hikari.GuildNewsChannel)
+    ]
+
     channel_data = {
-        f"{info.bot.custom_emojis.emoji_by_id(974750756966121522)} total channels" : len([channel for channel in guild.get_channels().values() if isinstance(channel,hikari.TextableGuildChannel) or isinstance(channel, hikari.GuildVoiceChannel)]),
-        f"{info.bot.custom_emojis.emoji_by_id(974750403608596610)} total categories" : len([channel for channel in guild.get_channels().values() if isinstance(channel, hikari.GuildCategory)])
+        f"{emoji_class.emoji_by_id(974750756966121522)} total channels": len(channels),
+        f"{emoji_class.emoji_by_id(974750403608596610)} total categories": len(
+            category_channels
+        ),
+        f"{emoji_class.text_channel_icon} text channels": len(text_channels),
+        f"{emoji_class.voice_channel_icon} voice channels": len(voice_channels),
+        f"{emoji_class.news_channel} news channels": len(news_channels),
+        f"⚙️ system channel": (
+            f"`{guild.get_channel(guild.system_channel_id).name}` | {guild.get_channel(guild.system_channel_id).mention}"
+            if guild.system_channel_id
+            else "No System channel set."
+        ),
+        f"{emoji_class.rules_channel} rules channel": (
+            f"`{guild.get_channel(guild.rules_channel_id).name}` | {guild.get_channel(guild.rules_channel_id).mention}"
+            if guild.rules_channel_id
+            else "No Rule channel set."
+        ),
+        f"💤 afk channel": (
+            f"`{guild.get_channel(guild.afk_channel_id).name}` | {guild.get_channel(guild.afk_channel_id).mention}"
+            if guild.afk_channel_id
+            else "No AFK channel set."
+        ),
     }
-    await context.respond(embed=base_embed)
+
+    channel_embed.description = "\n".join(
+        f"**{key.title()}** : {value}" for key, value in channel_data.items()
+    )
+    server_roles = [r for r in guild.get_roles().values()]
+    server_roles.sort(key=lambda role: role.position, reverse=True)
+    role_embed = hikari.Embed(color=color, title="ROLES")
+    role_data = {
+        f"{emoji_class.role_icon} total roles": len(guild.get_roles()),
+        "⬆️ top role": f"`{server_roles[0].name}` | {server_roles[0].mention}",
+        f"{emoji_class.emoji_by_id(975521766812299334)} roles with administrator": len(
+            [
+                role
+                for role in guild.get_roles().values()
+                if hikari.Permissions.ADMINISTRATOR in role.permissions
+            ]
+        ),
+    }
+    role_embed.description = "\n".join(
+        f"**{key.title()}** : {value}" for key, value in role_data.items()
+    )
+    role_embed.add_field(
+        name="@everyone roles perms.",
+        value=", ".join(perm.name.title() for perm in server_roles[-1].permissions),
+    )
+
+    pag = InfoEmbedPag(context, with_select=True)
+    pag.add_embeds(base_embed, channel_embed, role_embed)
+    res = await context.respond(embed=base_embed, components=pag.build())
+    msg = await res.message()
+    pag.start(msg)
 
 
 def load(bot: Gojo) -> None:
