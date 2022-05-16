@@ -1,4 +1,4 @@
-[/home](index.rst)/admin | [source](https://github.com/sarthhh/gojo/blob/main/src/extensions/admin.py)
+[/home](index.rst)/admin | [source](https://github.com/sarthhh/gojo/blob/main/extensions/admin.py)
 
 # ADMIN COMMANDS
 Admin commands for configuring bot's behaviour in server.

@@ -1,4 +1,4 @@
-[/home](index.rst)/greetings | [source](https://github.com/sarthhh/gojo/blob/main/src/extensions/greetings.py)
+[/home](index.rst)/greetings | [source](https://github.com/sarthhh/gojo/blob/main/extensions/greetings.py)
 
 # GREETING COMMANDS
 Welcome/Leave module to greet new users and goodbyes.

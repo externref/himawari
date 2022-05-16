@@ -1,4 +1,4 @@
-[/home](index.rst)/info | [source](https://github.com/sarthhh/gojo/blob/main/src/extensions/info.py)
+[/home](index.rst)/info | [source](https://github.com/sarthhh/gojo/blob/main/extensions/info.py)
 
 # INFO COMMANDS
 
@@ -27,6 +27,20 @@ Get information about the mentioned role.
 ![](images/roleinfo2.png)
 
 ![](images/roleinfo3.png)
+
+----
+
+## /serverinfo
+
+Brief info about the server and its objects.
+
+![](images/serverinfo1.png)
+
+![](images/serverinfo2.png)
+
+![](images/serverinfo3.png)
+
+![](images/serverinfo_dropdown.png)
 
 ----
 

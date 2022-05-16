@@ -1,4 +1,4 @@
-[/home](index.rst)/fun | [source](https://github.com/sarthhh/gojo/blob/main/src/extensions/fun.py)
+[/home](index.rst)/fun | [source](https://github.com/sarthhh/gojo/blob/main/extensions/fun.py)
 
 # FUN COMMANDS
 

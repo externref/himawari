@@ -1,4 +1,4 @@
-[/home](index.rst)/starboard | [source](https://github.com/sarthhh/gojo/blob/main/src/extensions/starboard.py)
+[/home](index.rst)/starboard | [source](https://github.com/sarthhh/gojo/blob/main/extensions/starboard.py)
 
 # STARBOARD COMMANDS
 
