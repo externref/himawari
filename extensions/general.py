@@ -4,6 +4,7 @@ from datetime import datetime
 
 import hikari
 import lightbulb
+import miru
 
 from core.bot import Gojo
 
@@ -35,6 +36,35 @@ async def _ping(context: lightbulb.SlashContext) -> None:
     prefix_fetch = (datetime.now() - start).microseconds
     embed.description = f"Bot Latency: `{round(general.bot.heartbeat_latency*1000,2)} ms`\nDatabase Latency: `{prefix_fetch} ms`"
     await context.edit_last_response(embed=embed)
+
+
+@general.command
+@lightbulb.command(name="vote", description="Vote for me on bot lists!")
+@lightbulb.implements(lightbulb.SlashCommand)
+async def _vote(context: lightbulb.SlashContext) -> None:
+    top_gg = f"https://top.gg/bot/{context.bot.get_me().id}/vote"
+    embed = (
+        hikari.Embed(
+            color=await general.bot.color_for(context.get_guild()),
+            description=f"{general.bot.cache.get_emoji(975653528825655317)} Vote on [`top.gg`]({top_gg})",
+        )
+        .set_author(name=f"VOTE FOR {general.bot.get_me().username.upper()}")
+        .set_thumbnail(general.bot.get_me().avatar_url)
+        .set_footer(
+            text=f"Requested by {context.author}",
+            icon=context.author.display_avatar_url,
+        )
+    )
+    view = miru.View()
+    view.add_item(
+        miru.Button(
+            style=hikari.ButtonStyle.LINK,
+            emoji=general.bot.cache.get_emoji(975653528825655317),
+            label="top.gg",
+            url=top_gg,
+        )
+    )
+    await context.respond(embed=embed, components=view.build())
 
 
 @general.command
