@@ -1,24 +1,23 @@
 [tool.poetry]
-name = "gojo"
+name = "himawari"
 version = "0.0.1"
-description = "A Slash command only Discord bot written in hikari library "
-authors = ["sarthak-py <shiva02939@gmail.com>"]
+description = "A confession bot written using hikari library."
+authors = ["sarthhh <shiva02939@gmail.com>"]
+license = "MIT"
 
 [tool.poetry.dependencies]
 python = ">=3.9,<3.11"
-aiosqlite = "^0.17.0"
-python-dotenv = "^0.20.0"
-hikari = "^2.0.0-alpha.108"
-hikari-lightbulb = "^2.2.1"
-hikari-miru = "^1.1.1"
 uvloop = "^0.16.0"
+aiosqlite = "^0.17.0"
+hikari = {git = "https://github.com/thesadru/hikari", rev = "feat/modal"}
+hikari-miru = {git = "https://github.com/HyperGH/hikari-miru", rev = "feature/modals"}
+python-dotenv = "^0.20.0"
+hikari-lightbulb = "^2.2.2"
 
 [tool.poetry.dev-dependencies]
-black = "^22.3.0"
-Sphinx = "^4.5.0"
-virtualenv = "^20.14.1"
-myst-parser = "^0.17.2"
-groundwork-sphinx-theme = "^1.1.1"
+black = "^22.6.0"
+mypy = "^0.961"
+isort = "^5.10.1"
 
 [build-system]
 requires = ["poetry-core>=1.0.0"]

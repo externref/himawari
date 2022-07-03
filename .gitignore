@@ -1,5 +1,6 @@
 .env
-*db
 env/
 .vscode/
 __pycache__/
+*db
+*db-journal
