@@ -1,3 +1,0 @@
-groundwork-sphinx-theme 
-sphinx 
-myst-parser

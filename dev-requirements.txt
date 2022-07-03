@@ -1,6 +1,0 @@
-black
-poetry
-virtualenv
-sphinx
-myst-parser
-groundwork-sphinx-theme  

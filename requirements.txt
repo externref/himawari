@@ -1,5 +1,0 @@
-hikari
-hikari-miru
-hikari-lightbulb
-aiosqlite
-python-dotenv
